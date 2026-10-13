@@ -1,0 +1,70 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostList from "../PostList.astro";
+import { langPath, ui, type Lang } from "../../config";
+
+export interface Props {
+  lang: Lang;
+  tag: string;
+  posts: Array<{
+    id: string;
+    data: {
+      title: string;
+      slug: string;
+      date: Date;
+      description?: string;
+      tags?: string[];
+    };
+  }>;
+  altUrl?: string;
+}
+
+const { lang, tag, posts, altUrl } = Astro.props;
+const t = ui[lang];
+---
+
+<BaseLayout lang={lang} title={`#${tag}`} altUrl={altUrl}>
+  <div class="page container tag-page">
+    <div class="title-row">
+      <h1>{tag}</h1>
+      <a href={langPath(lang, "/tags")} class="back-link">{t.backToTags}</a>
+    </div>
+    <p class="count">{t.postLabel(posts.length)}</p>
+
+    <section class="posts">
+      <PostList posts={posts} lang={lang} />
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+.title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+}
+.title-row h1 {
+  margin-bottom: 0;
+}
+.back-link {
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.back-link:hover {
+  color: var(--foreground);
+  text-decoration: underline;
+}
+.count {
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+  margin-bottom: 2rem;
+}
+.posts {
+  padding-bottom: 2rem;
+}
+</style>

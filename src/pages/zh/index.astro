@@ -1,0 +1,17 @@
+---
+import HomePage from "../../components/pages/HomePage.astro";
+import { getPosts } from "../../utils/posts";
+import { pagination } from "../../config";
+
+const lang = "zh";
+const published = await getPosts(lang);
+const pageSize = pagination.pageSize;
+const totalPages = Math.max(Math.ceil(published.length / pageSize), 1);
+---
+
+<HomePage
+  lang={lang}
+  posts={published.slice(0, pageSize)}
+  page={1}
+  totalPages={totalPages}
+/>

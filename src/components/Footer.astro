@@ -1,14 +1,21 @@
 ---
-import { ui } from '../config';
+import { langPath, ui, type Lang } from "../config";
+
+export interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
 ---
 
 <footer class="footer">
   <div class="container">
-    <p>{ui.footer}</p>
+    <p>{t.footer}</p>
     <div class="footer-links">
-      <a href={ui.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-      <a href={`mailto:${ui.email}`}>Email</a>
-      <a href="/rss.xml">RSS</a>
+      <a href="https://github.com/Star122013" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="mailto:hyy122013@outlook.com">Email</a>
+      <a href={langPath(lang, "/rss.xml")}>RSS</a>
     </div>
   </div>
 </footer>

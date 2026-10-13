@@ -1,67 +1,28 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import PostList from "../../components/PostList.astro";
-import { getCollection } from "astro:content";
+import TagPage from "../../components/pages/TagPage.astro";
+import { getPosts } from "../../utils/posts";
+import { defaultLang, langPath } from "../../config";
+
+const lang = defaultLang;
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog");
+  const posts = await getPosts(defaultLang);
   const tags = [...new Set(posts.flatMap((p) => p.data.tags || []))];
 
-  return tags.map((tag) => ({
-    params: { tag },
-    props: { tag },
-  }));
+  return tags.map((tag) => {
+    const filtered = posts.filter((p) => (p.data.tags || []).includes(tag));
+    return {
+      params: { tag },
+      props: {
+        tag,
+        posts: filtered,
+        altUrl: langPath("zh", `/tags/${encodeURIComponent(tag)}`),
+      },
+    };
+  });
 }
 
-const { tag } = Astro.props;
-const posts = await getCollection("blog");
-const filtered = posts
-  .filter((p) => !p.data.draft && (p.data.tags || []).includes(tag))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const { tag, posts, altUrl } = Astro.props;
 ---
 
-<BaseLayout title={`#${tag}`}>
-  <div class="page container tag-page">
-    <div class="title-row">
-      <h1>{tag}</h1>
-      <a href="/tags" class="back-link">Back to tags</a>
-    </div>
-    <p class="count">{filtered.length} post{filtered.length !== 1 ? 's' : ''}</p>
-
-    <section class="posts">
-      <PostList posts={filtered} />
-    </section>
-  </div>
-</BaseLayout>
-
-<style>
-.title-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.25rem;
-}
-.title-row h1 {
-  margin-bottom: 0;
-}
-.back-link {
-  font-size: var(--text-sm);
-  color: var(--muted-foreground);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 0.2s ease;
-}
-.back-link:hover {
-  color: var(--foreground);
-  text-decoration: underline;
-}
-.count {
-  color: var(--muted-foreground);
-  font-size: var(--text-sm);
-  margin-bottom: 2rem;
-}
-.posts {
-  padding-bottom: 2rem;
-}
-</style>
+<TagPage lang={lang} tag={tag} posts={posts} altUrl={altUrl} />

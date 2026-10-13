@@ -1,26 +1,60 @@
 import { execSync } from "node:child_process";
-import { mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
-import { join, resolve } from "node:path";
-import type { Loader } from "astro/loaders";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, relative, resolve, sep } from "node:path";
+import type { Loader, LoaderContext } from "astro/loaders";
 import { z } from "astro/zod";
 
-/**
- * Collect all `index.typ` files inside immediate subdirectories of `contentDir`.
- * Skips directories starting with `_` or `.`. Returns { dirName, filePath }.
- */
-function findIndexTypFiles(contentDir: string): { dirName: string; filePath: string }[] {
-	const results: { dirName: string; filePath: string }[] = [];
+interface TypFile {
+	slug: string;
+	lang: string;
+	filePath: string;
+}
+
+const INDEX_TYP = /^index(?:\.([a-zA-Z]{2}))?\.typ$/;
+
+/** Derive { slug, lang } from an absolute path, or null if it isn't a post file. */
+function parseTypPath(
+	contentDir: string,
+	filePath: string,
+	langs: string[],
+	defaultLang: string,
+): TypFile | null {
+	const parts = relative(contentDir, filePath).split(sep);
+	if (parts.length !== 2) return null;
+
+	const [slug, file] = parts;
+	if (!slug || slug.startsWith("_") || slug.startsWith(".")) return null;
+
+	const match = file.match(INDEX_TYP);
+	if (!match) return null;
+
+	const lang = match[1] || defaultLang;
+	if (!langs.includes(lang)) return null;
+
+	return { slug, lang, filePath };
+}
+
+/** Collect all post files inside immediate subdirectories of `contentDir`. */
+function findTypFiles(
+	contentDir: string,
+	langs: string[],
+	defaultLang: string,
+): TypFile[] {
+	const results: TypFile[] = [];
 
 	for (const entry of readdirSync(contentDir, { withFileTypes: true })) {
 		if (!entry.isDirectory()) continue;
 		if (entry.name.startsWith("_") || entry.name.startsWith(".")) continue;
 
-		const subFiles = readdirSync(join(contentDir, entry.name));
-		if (subFiles.includes("index.typ")) {
-			results.push({
-				dirName: entry.name,
-				filePath: join(contentDir, entry.name, "index.typ"),
-			});
+		for (const file of readdirSync(join(contentDir, entry.name))) {
+			const parsed = parseTypPath(
+				contentDir,
+				join(contentDir, entry.name, file),
+				langs,
+				defaultLang,
+			);
+			if (parsed) results.push(parsed);
 		}
 	}
 
@@ -65,53 +99,97 @@ function parseFrontmatter(filePath: string, root: string) {
 	}
 }
 
-export function typstLoader(options: { dir: string }): Loader {
+/** Parse + compile one post file and store the entry. */
+async function syncEntry(
+	ctx: Pick<LoaderContext, "store" | "parseData">,
+	contentDir: string,
+	{ slug, lang, filePath }: TypFile,
+) {
+	// Pass contentDir as --root so that `../_template.typ` and other relative
+	// imports resolve while staying inside the typst sandbox.
+	const metadata = parseFrontmatter(filePath, contentDir);
+	if (!metadata) return false;
+
+	// Compile to HTML in a throwaway temp dir.
+	const workDir = mkdtempSync(join(tmpdir(), "astro-typst-"));
+	const outFile = join(workDir, "out.html");
+	try {
+		execSync(
+			`typst compile --root "${contentDir}" --features html --format html "${filePath}" "${outFile}"`,
+			{ timeout: 15_000, stdio: "pipe" },
+		);
+		const fullHtml = readFileSync(outFile, "utf-8");
+		const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+		const bodyContent = bodyMatch ? bodyMatch[1].trim() : fullHtml;
+
+		// One entry per language: id = "<lang>/<slug>"
+		const id = `${lang}/${slug}`;
+		const data = await ctx.parseData<Record<string, unknown>>({
+			id,
+			data: { ...metadata, lang, slug, body: bodyContent },
+		});
+		ctx.store.set({ id, data });
+		return true;
+	} finally {
+		rmSync(workDir, { recursive: true, force: true });
+	}
+}
+
+export function typstLoader(options: {
+	dir: string;
+	langs: string[];
+	defaultLang: string;
+}): Loader {
+	const { langs, defaultLang } = options;
+
 	return {
 		name: "typst-loader",
 
-		load: async ({ store, parseData, logger }) => {
+		load: async ({ store, parseData, logger, watcher }) => {
 			const contentDir = resolve(options.dir);
-			const indexFiles = findIndexTypFiles(contentDir);
+			const files = findTypFiles(contentDir, langs, defaultLang);
 
-			if (indexFiles.length === 0) return;
-
-			const tmpDir = join(contentDir, "_tmp");
-			mkdirSync(tmpDir, { recursive: true });
-
-			for (const { dirName, filePath } of indexFiles) {
-				// Pass contentDir as --root so that `../_template.typ` and
-				// other relative imports resolve while staying inside the
-				// typst sandbox.
-				const metadata = parseFrontmatter(filePath, contentDir);
-				if (!metadata) {
-					logger.warn(`Skipping ${dirName}/index.typ: no frontmatter found`);
-					continue;
+			for (const file of files) {
+				const ok = await syncEntry({ store, parseData }, contentDir, file);
+				if (!ok) {
+					logger.warn(`Skipping ${file.lang}/${file.slug}: no frontmatter found`);
 				}
-
-				// Compile to HTML.
-				const outFile = join(tmpDir, dirName + ".html");
-				execSync(
-					`typst compile --root "${contentDir}" --features html --format html "${filePath}" "${outFile}"`,
-					{ timeout: 15_000, stdio: "pipe" },
-				);
-
-				const fullHtml = readFileSync(outFile, "utf-8");
-				rmSync(outFile);
-
-				const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-				const bodyContent = bodyMatch ? bodyMatch[1].trim() : fullHtml;
-
-				// ID is the post directory name
-				const id = dirName;
-				const data = await parseData({
-					id,
-					data: { ...metadata, body: bodyContent },
-				});
-
-				store.set({ id, data });
 			}
 
-			rmSync(tmpDir, { recursive: true });
+			// Dev only: watch the content dir and recompile on change/add/unlink
+			// so `astro dev` hot-reloads without a manual rebuild.
+			if (!watcher) return;
+
+			watcher.add(contentDir);
+
+			const known = new Map<string, TypFile>(
+				files.map((f) => [f.filePath, f]),
+			);
+
+			const resolveFile = (filePath: string) =>
+				parseTypPath(contentDir, filePath, langs, defaultLang);
+
+			const onAddOrChange = async (filePath: string) => {
+				const parsed = resolveFile(filePath);
+				if (!parsed) return;
+				known.set(filePath, parsed);
+				try {
+					await syncEntry({ store, parseData }, contentDir, parsed);
+					logger.info(`Reloaded ${parsed.lang}/${parsed.slug}`);
+				} catch (err) {
+					const msg = err instanceof Error ? err.message : String(err);
+					logger.error(`Failed to reload ${parsed.lang}/${parsed.slug}: ${msg}`);
+				}
+			};
+
+			watcher.on("add", onAddOrChange);
+			watcher.on("change", onAddOrChange);
+			watcher.on("unlink", (filePath: string) => {
+				const parsed = known.get(filePath) ?? resolveFile(filePath);
+				if (!parsed) return;
+				known.delete(filePath);
+				store.delete(`${parsed.lang}/${parsed.slug}`);
+			});
 		},
 
 		schema: z.object({
@@ -120,6 +198,8 @@ export function typstLoader(options: { dir: string }): Loader {
 			draft: z.boolean().optional().default(false),
 			tags: z.array(z.string()).optional().default([]),
 			description: z.string().optional().default(""),
+			lang: z.string(),
+			slug: z.string(),
 			body: z.string(),
 		}),
 	};

@@ -1,0 +1,21 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { ui, type Lang } from "../../config";
+
+export interface Props {
+  lang: Lang;
+  altUrl?: string;
+}
+
+const { lang, altUrl } = Astro.props;
+const t = ui[lang];
+---
+
+<BaseLayout lang={lang} title={t.aboutTitle} altUrl={altUrl}>
+  <div class="page container">
+    <h1>{t.aboutTitle}</h1>
+    <div class="prose">
+      <Fragment set:html={t.aboutBody} />
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,28 @@
+---
+import TagPage from "../../../components/pages/TagPage.astro";
+import { getPosts } from "../../../utils/posts";
+import { defaultLang, langPath } from "../../../config";
+
+const lang = "zh";
+
+export async function getStaticPaths() {
+  const posts = await getPosts("zh");
+  const tags = [...new Set(posts.flatMap((p) => p.data.tags || []))];
+
+  return tags.map((tag) => {
+    const filtered = posts.filter((p) => (p.data.tags || []).includes(tag));
+    return {
+      params: { tag },
+      props: {
+        tag,
+        posts: filtered,
+        altUrl: langPath(defaultLang, `/tags/${encodeURIComponent(tag)}`),
+      },
+    };
+  });
+}
+
+const { tag, posts, altUrl } = Astro.props;
+---
+
+<TagPage lang={lang} tag={tag} posts={posts} altUrl={altUrl} />

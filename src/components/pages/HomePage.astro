@@ -1,0 +1,228 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostList from "../PostList.astro";
+import { langPath, siteMeta, ui, type Lang } from "../../config";
+
+export interface Props {
+  lang: Lang;
+  posts: Array<{
+    id: string;
+    data: {
+      title: string;
+      slug: string;
+      date: Date;
+      description?: string;
+      tags?: string[];
+    };
+  }>;
+  page: number;
+  totalPages: number;
+  altUrl?: string;
+}
+
+const { lang, posts, page, totalPages, altUrl } = Astro.props;
+const t = ui[lang];
+const prevPage = page - 1 === 1 ? langPath(lang, "/") : langPath(lang, `/page/${page - 1}`);
+const nextPage = page < totalPages ? langPath(lang, `/page/${page + 1}`) : null;
+const searchIndex = langPath(lang, "/search-index.json");
+---
+
+<BaseLayout
+  lang={lang}
+  title={page > 1 ? (lang === "zh" ? `第 ${page} 页` : `Page ${page}`) : undefined}
+  altUrl={altUrl}
+>
+  <div class="hero">
+    <h1>{siteMeta[lang].title}</h1>
+    <p class="tagline">{t.tagline}</p>
+  </div>
+
+  <div class="search-inline container">
+    <input type="search" id="search-input" placeholder={t.searchPlaceholder} />
+    <div id="search-results" class="search-results"></div>
+  </div>
+
+  <section class="posts container">
+    <PostList posts={posts} lang={lang} />
+
+    {totalPages > 1 && (
+      <nav class="pagination">
+        {page > 1 && <a href={prevPage} class="page-link prev">{t.previous}</a>}
+        <span class="page-info">{page} / {totalPages}</span>
+        {nextPage && <a href={nextPage} class="page-link next">{t.next}</a>}
+      </nav>
+    )}
+  </section>
+</BaseLayout>
+
+<script type="application/json" id="search-i18n" set:html={JSON.stringify({
+  indexUrl: searchIndex,
+  noResults: t.noResults,
+})}></script>
+
+<script data-astro-rerun>
+  (async function () {
+    const input = document.getElementById('search-input');
+    const results = document.getElementById('search-results');
+    const cfgEl = document.getElementById('search-i18n');
+    if (!input || !results || !cfgEl) return;
+
+    let cfg = { indexUrl: '/search-index.json', noResults: 'No results.' };
+    try { cfg = Object.assign(cfg, JSON.parse(cfgEl.textContent)); } catch (e) {}
+
+    const res = await fetch(cfg.indexUrl);
+    const index = await res.json();
+
+    function search(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) { results.innerHTML = ''; return []; }
+      return index.filter(function (post) {
+        return (
+          post.title.toLowerCase().includes(q) ||
+          (post.description && post.description.toLowerCase().includes(q)) ||
+          (post.tags && post.tags.some(function (t) { return t.toLowerCase().includes(q); }))
+        );
+      });
+    }
+
+    function render(items) {
+      if (items.length === 0) {
+        results.innerHTML = '<p class="empty">' + cfg.noResults + '</p>';
+        return;
+      }
+      results.innerHTML = items.map(function (post) {
+        return '<article class="result-item">' +
+          '<h3><a href="' + post.url + '">' + post.title + '</a></h3>' +
+          '<div class="meta">' +
+            '<time>' + post.date + '</time>' +
+            (post.tags && post.tags.length ? post.tags.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('') : '') +
+          '</div>' +
+          (post.description ? '<p>' + post.description + '</p>' : '') +
+        '</article>';
+      }).join('');
+    }
+
+    input.addEventListener('input', function () {
+      var items = search(input.value);
+      render(items);
+    });
+  })();
+</script>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 4rem 0 2rem;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+  }
+  .tagline {
+    margin-top: 0.5rem;
+    color: var(--muted-foreground);
+  }
+
+  /* 内联搜索 */
+  .search-inline {
+    margin-bottom: 2rem;
+  }
+  #search-input {
+    width: 100%;
+    padding: 0.6em 1em;
+    font-size: var(--text-sm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
+    color: var(--foreground);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  #search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--border);
+  }
+  #search-input::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.7;
+  }
+  .search-results {
+    margin-top: 0.75rem;
+  }
+  .result-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .result-item:last-child {
+    border-bottom: none;
+  }
+  .result-item h3 {
+    font-size: var(--text-base);
+    font-weight: 600;
+  }
+  .result-item h3 a {
+    color: var(--foreground);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .result-item h3 a:hover {
+    color: var(--accent);
+  }
+  .result-item .meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.15rem;
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+  }
+  .result-item .meta .tag {
+    font-size: 0.75em;
+    padding: 0.1em 0.45em;
+    border-radius: 999px;
+    color: var(--chip-fg);
+    background: var(--chip-bg);
+    border: 1px solid var(--chip-border);
+  }
+  .result-item p {
+    margin-top: 0.25rem;
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+  }
+  .search-results .empty {
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    padding: 0.5rem 0;
+  }
+
+  .posts {
+    padding-bottom: 3rem;
+  }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    transition: border-color 0.3s ease;
+  }
+  .page-link {
+    color: var(--foreground);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    transition: color 0.2s ease, gap 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .page-link:hover {
+    color: var(--muted-foreground);
+    gap: 0.5rem;
+  }
+  .page-info {
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+  }
+</style>

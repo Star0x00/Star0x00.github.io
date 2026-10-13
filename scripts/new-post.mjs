@@ -5,13 +5,14 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const title = process.argv[2];
-if (!title) {
-	console.error('Usage: pnpm new-post "My Post Title"');
+const enTitle = process.argv[2];
+const zhTitle = process.argv[3] || enTitle;
+if (!enTitle) {
+	console.error('Usage: pnpm new-post "English Title" ["中文标题"]');
 	process.exit(1);
 }
 
-const slug = title
+const slug = enTitle
 	.toLowerCase()
 	.replace(/[^a-z0-9]+/g, "-")
 	.replace(/^-|-$/g, "");
@@ -19,16 +20,16 @@ const slug = title
 const now = new Date();
 const date = `datetime(year: ${now.getFullYear()}, month: ${now.getMonth() + 1}, day: ${now.getDate()})`;
 
-// Each post is a folder containing index.typ + its own images
+// Each post is a folder containing index.<lang>.typ + its own images.
+// `index.en.typ` builds the /blog/... page, `index.zh.typ` the /zh/blog/... page.
 const postDir = path.join("src/content/blog", slug);
-const file = path.join(postDir, "index.typ");
 
 if (fs.existsSync(postDir)) {
 	console.error(`Post already exists: ${postDir}`);
 	process.exit(1);
 }
 
-const template = `#import "../_template.typ": *
+const template = (title) => `#import "../_template.typ": *
 
 #show: post.with(
   title: "${title.replace(/"/g, '\\"')}",
@@ -43,6 +44,12 @@ Write your post here.
 `;
 
 fs.mkdirSync(postDir, { recursive: true });
-fs.writeFileSync(file, template);
-console.log(`Created: ${file}`);
+
+const enFile = path.join(postDir, "index.en.typ");
+const zhFile = path.join(postDir, "index.zh.typ");
+fs.writeFileSync(enFile, template(enTitle));
+fs.writeFileSync(zhFile, template(zhTitle));
+
+console.log(`Created: ${enFile}`);
+console.log(`Created: ${zhFile}`);
 console.log(`Images for this post go in: ${postDir}/`);

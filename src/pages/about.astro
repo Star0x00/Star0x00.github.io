@@ -1,13 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import AboutPage from "../components/pages/AboutPage.astro";
+import { defaultLang } from "../config";
+
+const lang = defaultLang;
 ---
 
-<BaseLayout title="About">
-  <div class="page container">
-    <h1>About</h1>
-    <div class="prose">
-      <p>This blog is built with <a href="https://astro.build">Astro</a> and <a href="https://typst.app">Typst</a>.</p>
-      <p>Words first. Nothing else.</p>
-    </div>
-  </div>
-</BaseLayout>
+<AboutPage lang={lang} />

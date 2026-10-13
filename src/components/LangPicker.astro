@@ -1,0 +1,243 @@
+---
+import { languages, ui, type Lang } from "../config";
+
+export interface Props {
+  lang: Lang;
+  altUrl: string;
+}
+
+const { lang, altUrl } = Astro.props;
+const t = ui[lang];
+const other: Lang = lang === "en" ? "zh" : "en";
+
+// Only two locales: the current one points at itself, the other at altUrl.
+const items = ([lang, other] as Lang[]).map((code) => ({
+  code,
+  name: languages[code],
+  href: code === lang ? undefined : altUrl,
+  active: code === lang,
+}));
+---
+
+<div class="lang-picker" id="lang-picker">
+  <button
+    class="picker-btn"
+    id="lang-picker-btn"
+    aria-label={t.language}
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    <!-- 地球 / 语言图标（与主题切换按钮风格一致，无箭头） -->
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  </button>
+
+  <div class="picker-panel" id="lang-picker-panel" role="menu" hidden>
+    <div class="picker-head">{t.language}</div>
+    <div class="picker-grid">
+      {items.map((item) => (
+        item.active ? (
+          <button
+            class="picker-item active"
+            data-lang-id={item.code}
+            role="menuitemradio"
+            aria-checked="true"
+            type="button"
+          >
+            <span class="picker-name">{item.name}</span>
+            <span class="picker-check" aria-hidden="true"></span>
+          </button>
+        ) : (
+          <a
+            class="picker-item"
+            data-lang-id={item.code}
+            href={item.href}
+            role="menuitemradio"
+            aria-checked="false"
+          >
+            <span class="picker-name">{item.name}</span>
+            <span class="picker-check" aria-hidden="true"></span>
+          </a>
+        )
+      ))}
+    </div>
+  </div>
+</div>
+
+<script data-astro-rerun>
+// 语言选择器：地球按钮 → 下拉面板。选中的语言用 <button>，另一个是 <a>，
+// 由 ClientRouter 负责带转场的导航。样式与 ThemePicker 一致。
+(function () {
+  const root = document.getElementById("lang-picker");
+  const btn = document.getElementById("lang-picker-btn");
+  const panel = document.getElementById("lang-picker-panel");
+  if (!root || !btn || !panel) return;
+
+  function open() {
+    panel.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+  }
+  function close() {
+    panel.hidden = true;
+    btn.setAttribute("aria-expanded", "false");
+  }
+  function toggle() {
+    panel.hidden ? open() : close();
+  }
+
+  btn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    toggle();
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!root.contains(e.target)) close();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") close();
+  });
+
+  // 当前语言是 <button>，点它只关闭面板
+  panel.addEventListener("click", function (e) {
+    if (e.target.closest("button.picker-item")) close();
+  });
+})();
+</script>
+
+<style>
+.lang-picker {
+  position: relative;
+}
+.picker-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--foreground);
+  padding: 0.3rem;
+  border-radius: 6px;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+.picker-btn:hover {
+  color: var(--accent);
+  background: var(--muted);
+}
+.picker-btn[aria-expanded="true"] {
+  color: var(--accent);
+  background: var(--muted);
+}
+
+/* 下拉面板（与 ThemePicker 同款） */
+.picker-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: var(--picker-bg);
+  color: var(--popover-foreground);
+  border: 1px solid var(--picker-border);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+  z-index: 50;
+  padding: 0.5rem;
+  animation: lang-picker-in 0.14s ease-out;
+}
+@keyframes lang-picker-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.picker-head {
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--picker-head);
+  padding: 0.4rem 0.6rem 0.4rem;
+  font-weight: 650;
+}
+.picker-grid {
+  display: grid;
+  gap: 2px;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.42rem 0.6rem;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--popover-foreground);
+  text-decoration: none;
+  font-size: 0.85em;
+  white-space: nowrap;
+  transition: background 0.12s ease;
+}
+.picker-item:hover {
+  background: var(--picker-hover);
+  text-decoration: none;
+}
+.picker-item.active {
+  background: var(--picker-hover);
+}
+.picker-name {
+  flex: 1;
+}
+.picker-check {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  visibility: hidden;
+}
+.picker-item.active .picker-check {
+  visibility: visible;
+}
+.picker-item.active .picker-check::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .picker-panel {
+    position: fixed;
+    top: auto;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    min-width: 0;
+  }
+}
+</style>

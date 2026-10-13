@@ -368,6 +368,37 @@
 	--callout-note-bg: #d0dce0;
 	--callout-note-fg: #076678;
 }
+/* ═══ 派生色：由当前主题的变量算出，新增主题无需再补定义 ═══
+ * ① 小胶囊类元信息（文章 tag、代码块语言标签 / 复制按钮、搜索结果 tag）：
+ * 把 accent 按比例混进 background / foreground / border。
+ * 不能直接用 --muted-foreground 配 --muted：亮色主题下对比度只有
+ * 2.37~4.34:1（Rosé Pine Dawn / Kanagawa Lotus / Gruvbox Light 几乎看不清），
+ * 且 --muted 与 --background 亮度太接近，胶囊底几乎看不见（1.07~1.51）。
+ * 派生后：文字对比度最差 4.57:1（AA 通过），胶囊底与描边在所有主题下清晰可见。
+ *
+ * ② 行内代码（正文里的 `code`）：把 foreground 混进 muted / border 做中性加深，
+ * 不用 accent——行内代码不是可点元素，染成 accent 会像链接。
+ * 原样是 --muted 配 --border，亮色主题下行内代码底与页面底只差 1.07~1.24，
+ * 段落里几乎看不出那是代码片段；派生后底/页面 1.18~1.89、边/页面 1.66~3.22，
+ * 正文对比度最差 4.62:1（仍过 AA）。深色主题同样只增不减。
+ *
+ * ③ 下拉面板（主题 / 语言选择器）：亮色主题下 --popover 与 --background
+ * 常常几乎同色（AstroPaper / Rosé Pine / Catppuccin 差 1.01~1.11），--border
+ * 又很淡，面板会糊在页面里；面板头标签用 --muted-foreground 在亮色主题下
+ * 只有 2.3~3.0:1。这里把 foreground / accent 混进去，让面板在明暗主题下
+ * 都清晰可辨。 */
+:root {
+	--chip-bg: color-mix(in oklab, var(--accent) 16%, var(--background));
+	--chip-fg: color-mix(in oklab, var(--accent) 30%, var(--foreground));
+	--chip-border: color-mix(in oklab, var(--accent) 45%, var(--border));
+	--inline-code-bg: color-mix(in oklab, var(--foreground) 6%, var(--muted));
+	--inline-code-border: color-mix(in oklab, var(--foreground) 20%, var(--border));
+	--picker-bg: color-mix(in oklab, var(--foreground) 5%, var(--popover));
+	--picker-border: color-mix(in oklab, var(--foreground) 18%, var(--border));
+	--picker-hover: color-mix(in oklab, var(--accent) 15%, var(--popover));
+	--picker-head: color-mix(in oklab, var(--muted-foreground) 35%, var(--foreground));
+}
+
 /* ═══════════════════════════════════════════════════════════════
  * 以下为组件与排版样式，一律引用上面的变量，不出现具体色值
  * ═══════════════════════════════════════════════════════════════ */
@@ -581,13 +612,14 @@ img {
 	}
 }
 
-/* ===== 行内代码 ===== */
+/* ===== 行内代码 =====
+ * 颜色用 global.css 顶部的派生色（中性加深），亮色主题下才看得出是代码片段 */
 .prose code {
 	font-size: 0.85em;
 	padding: 0.2em 0.4em;
 	border-radius: 4px;
-	background: var(--muted);
-	border: 1px solid var(--border);
+	background: var(--inline-code-bg);
+	border: 1px solid var(--inline-code-border);
 	font-family: ui-monospace, "Cascadia Code", "SF Mono", "Fira Code", monospace;
 	font-weight: 450;
 }

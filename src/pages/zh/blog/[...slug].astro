@@ -1,0 +1,31 @@
+---
+import PostPage from "../../../components/pages/PostPage.astro";
+import { getAllPosts } from "../../../utils/posts";
+import { defaultLang, langPath } from "../../../config";
+
+const lang = "zh";
+
+export async function getStaticPaths() {
+  const all = await getAllPosts();
+  return all
+    .filter((post) => post.data.lang === "zh")
+    .map((post) => {
+      const other = all.find(
+        (p) => p.data.lang === defaultLang && p.data.slug === post.data.slug,
+      );
+      return {
+        params: { slug: post.data.slug },
+        props: {
+          post,
+          altUrl: other
+            ? langPath(defaultLang, `/blog/${other.data.slug}`)
+            : langPath(defaultLang, "/"),
+        },
+      };
+    });
+}
+
+const { post, altUrl } = Astro.props;
+---
+
+<PostPage lang={lang} post={post} altUrl={altUrl} />

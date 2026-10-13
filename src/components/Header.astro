@@ -1,15 +1,25 @@
 ---
 import ThemePicker from "./ThemePicker.astro";
-import { site, ui } from "../config";
+import LangPicker from "./LangPicker.astro";
+import { langPath, navItems, siteMeta, ui, type Lang } from "../config";
+
+export interface Props {
+  lang: Lang;
+  altUrl: string;
+}
+
+const { lang, altUrl } = Astro.props;
+const t = ui[lang];
 ---
 
 <header class="header">
   <div class="container header-inner">
-    <a href="/" class="logo">{site.title}</a>
+    <a href={langPath(lang, "/")} class="logo">{siteMeta[lang].title}</a>
     <nav class="nav">
-      {ui.nav.map((item) => (
-        <a href={item.href}>{item.label}</a>
+      {navItems.map((item) => (
+        <a href={langPath(lang, item.href)}>{t.nav[item.key]}</a>
       ))}
+      <LangPicker lang={lang} altUrl={altUrl} />
       <ThemePicker />
     </nav>
   </div>

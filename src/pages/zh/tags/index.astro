@@ -1,0 +1,11 @@
+---
+import TagsIndex from "../../../components/pages/TagsIndex.astro";
+import { getPosts } from "../../../utils/posts";
+import { buildGraphData } from "../../../utils/graph";
+
+const lang = "zh";
+const posts = await getPosts(lang);
+const { nodes, graphData } = buildGraphData(posts, lang);
+---
+
+<TagsIndex lang={lang} graphData={graphData} hasNodes={nodes.length > 0} />

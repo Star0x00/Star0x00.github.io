@@ -1,0 +1,30 @@
+---
+import HomePage from "../../../components/pages/HomePage.astro";
+import { getPosts } from "../../../utils/posts";
+import { pagination } from "../../../config";
+
+const lang = "zh";
+
+export async function getStaticPaths() {
+  const published = await getPosts("zh");
+  const pageSize = pagination.pageSize;
+  const totalPages = Math.ceil(published.length / pageSize);
+
+  return Array.from({ length: Math.max(totalPages - 1, 0) }, (_, i) => {
+    const page = i + 2;
+    const start = (page - 1) * pageSize;
+    return {
+      params: { page: String(page) },
+      props: {
+        pagePosts: published.slice(start, start + pageSize),
+        page,
+        totalPages,
+      },
+    };
+  });
+}
+
+const { pagePosts, page, totalPages } = Astro.props;
+---
+
+<HomePage lang={lang} posts={pagePosts} page={page} totalPages={totalPages} />

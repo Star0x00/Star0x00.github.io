@@ -206,9 +206,9 @@ const ids = themes.map((t) => t.id);
   top: calc(100% + 8px);
   right: 0;
   min-width: 230px;
-  background: var(--popover);
+  background: var(--picker-bg);
   color: var(--popover-foreground);
-  border: 1px solid var(--border);
+  border: 1px solid var(--picker-border);
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
   z-index: 50;
@@ -229,7 +229,7 @@ const ids = themes.map((t) => t.id);
   font-size: 0.7em;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--muted-foreground);
+  color: var(--picker-head);
   padding: 0.4rem 0.6rem 0.4rem;
   font-weight: 650;
 }
@@ -255,10 +255,10 @@ const ids = themes.map((t) => t.id);
   transition: background 0.12s ease;
 }
 .picker-item:hover {
-  background: var(--muted);
+  background: var(--picker-hover);
 }
 .picker-item.active {
-  background: var(--muted);
+  background: var(--picker-hover);
 }
 
 /* 色卡：bg / fg / accent 三颗圆点 */
