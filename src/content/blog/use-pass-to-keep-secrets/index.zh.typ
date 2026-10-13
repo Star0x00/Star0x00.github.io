@@ -9,11 +9,11 @@
 
 = 用pass来存储加密内容
 
-在pc的使用过程中，不可避免的会遇到一些需要加密存储的内容，比如`api key`、`ssh key`等。市面上也有一些提供密码存储的软件，比如`1password`、`Bitwarden`等，下面将会介绍
-如何使用开源的`pass`配合`gpg`来保存这些内容以及一些`gpg`的基础用法。
+在pc的使用过程中，不可避免的会遇到一些需要加密存储的内容，比如api key、ssh key等。市面上也有一些提供密码存储的软件，比如`1password`、`Bitwarden`等，下面将会介绍
+如何使用开源的pass配合gpg来保存这些内容以及一些gpg的基础用法。
 
 == gpg的基本用法
-在使用`pass`前，需要先有至少一个`gpg`密钥，`gnupg`的数据目录默认路径是`~/.gnupg`，有需求覆盖这个路径的，可以通过设置`$GNUPGHOME`和使用`gpg --homedir path/to/dir`来进行更改。
+在使用pass前，需要先有至少一个gpg密钥，gnupg的数据目录默认路径是`~/.gnupg`，有需求覆盖这个路径的，可以通过设置`$GNUPGHOME`和使用`gpg --homedir path/to/dir`来进行更改。
 
 接下来进行`Primary Key`的生成#footnote[`--gen-key`这个可以使用默认参数快速生成。]:
 ```shell-unix-generic
@@ -41,7 +41,7 @@ sec   ed25519 2026-10-12 [SC]
 uid           [ultimate] qwerhyy (main key) <qwerhyy@test.com>
 ssb   cv25519 2026-10-12 [E]
 ```
-这里可以看到，`gpg`生成了一个负责签名和认证的`Primary Key`，同时也有个能加密的`Sub Key`，这是`--full-gen-key`默认生成的，可以根据需要调整这个行为。这个负责加密的子密钥就是后续`pass`要用到的。
+这里可以看到，gpg生成了一个负责签名和认证的`Primary Key`，同时也有个能加密的`Sub Key`，这是`--full-gen-key`默认生成的，可以根据需要调整这个行为。这个负责加密的子密钥就是后续pass要用到的。
 
 密钥需要导出进行保存。
 ```shell-unix-generic
@@ -52,7 +52,7 @@ gpg --gen-revoke {key} > revoke.asc                                         # �
 后续可以通过`gpg --import`进行导入。
 
 == pass的基本用法
-可以`pass help`来查看`pass`的基本命令#footnote[有些系统的pass打包有man手册，fedora的我倒是没有找到]
+可以`pass help`来查看pass的基本命令#footnote[有些系统的pass打包有man手册，fedora的我倒是没有找到]
 
 当第一次使用`pass`命令的时候，他可能会提示进行初始化
 ```shell-unix-generic
@@ -78,4 +78,4 @@ $ pass
 Password Store
 └── xxxx
 ```
-`pass`还自带了`pass git`进行管理。同样，`pass`也可以像其他密码管理应用一样生成密码，只需使用`pass generate pass-name length`。
+pass还自带了`pass git`进行管理。同样，pass也可以像其他密码管理应用一样生成密码，只需使用`pass generate pass-name length`。
