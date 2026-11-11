@@ -10,6 +10,15 @@ export interface Props {
 
 const { lang, altUrl } = Astro.props;
 const t = ui[lang];
+
+// 去掉语言前缀后做导航高亮（AstroPaper 的 active-nav）
+const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
+const bare = pathname.replace(new RegExp(`^/${lang}(?=/|$)`), "") || "/";
+const isActive = (href: string) => {
+  if (href === "/") return bare === "/";
+  const root = bare.split("/").filter(Boolean)[0];
+  return root === href.replace(/^\//, "").split("/").filter(Boolean)[0];
+};
 ---
 
 <header class="header">
@@ -17,7 +26,12 @@ const t = ui[lang];
     <a href={langPath(lang, "/")} class="logo">{siteMeta[lang].title}</a>
     <nav class="nav">
       {navItems.map((item) => (
-        <a href={langPath(lang, item.href)}>{t.nav[item.key]}</a>
+        <a
+          href={langPath(lang, item.href)}
+          class:list={["nav-link", { active: isActive(item.href) }]}
+        >
+          {t.nav[item.key]}
+        </a>
       ))}
       <LangPicker lang={lang} altUrl={altUrl} />
       <ThemePicker />
@@ -32,55 +46,60 @@ const t = ui[lang];
   top: 0;
   z-index: 10;
   background: var(--background);
-  transition:
-    background 0.3s ease,
-    border-color 0.3s ease;
 }
 .header-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 .logo {
-  font-size: var(--text-xl);
-  font-weight: 700;
+  font-size: 1.5em;
+  font-weight: 600;
   color: var(--foreground);
   text-decoration: none;
-  transition: opacity 0.2s ease;
+  line-height: 1;
+  white-space: nowrap;
+  transition: color 0.2s ease;
 }
 .logo:hover {
-  opacity: 0.7;
+  color: var(--accent);
 }
 .nav {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
-.nav a {
+.nav-link {
   font-size: var(--text-sm);
+  font-weight: 500;
   color: var(--foreground);
   text-decoration: none;
-  position: relative;
   padding: 0.15rem 0;
   transition: color 0.2s ease;
 }
-.nav a::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1.5px;
-  background: var(--foreground);
-  transition: width 0.25s ease;
+.nav-link:hover {
+  color: var(--accent);
 }
-.nav a:hover {
-  color: var(--muted-foreground);
-  text-decoration: none;
+/* 当前页：波浪下划线（AstroPaper 的 active-nav） */
+.nav-link.active {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
+  text-decoration-color: var(--accent);
 }
-.nav a:hover::after {
-  width: 100%;
+@media (max-width: 640px) {
+  .header-inner {
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+  }
+  .logo {
+    font-size: 1.15em;
+  }
+  .nav {
+    gap: 0.85rem;
+  }
 }
 </style>

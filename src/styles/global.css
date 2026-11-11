@@ -1,13 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════
- * 主题系统：`<html data-theme="...">` 选定主题，每个主题一个变量块。
+ * 主题系统：`<html data-theme="light|dark">`
+ *   light → Catppuccin Latte
+ *   dark  → Catppuccin Mocha
  * 所有色值只在这里定义，组件/页面一律用 var() 引用。
- * 添加新主题 = 在下方追加一个 `[data-theme="xxx"]` 块 + 在
- * `src/components/ThemePicker.astro` 的主题列表里加一项。
+ * 参考 AstroPaper（satnaing/astro-paper）的排版与色板结构。
  * ═══════════════════════════════════════════════════════════════ */
 
 /* —— 公共（不随主题变） —— */
 :root {
 	--radius: 0.5rem;
+	--content-width: 48rem; /* AstroPaper 的 max-w-3xl */
+
 	--text-xs: 0.75em;
 	--text-sm: 0.85em;
 	--text-base: 1em;
@@ -17,126 +20,51 @@
 	--text-3xl: 2em;
 }
 
-/* ═══ 1. astropaper-light（默认浅色）═══ */
+/* ═══ 1. light — Catppuccin Latte ═══ */
 :root,
-[data-theme="astropaper-light"] {
-	--background: #fcfcfc;
-	--foreground: #1a1a2e;
-	--accent: #2563eb;
+[data-theme="light"] {
+	color-scheme: light;
+	--background: #eff1f5; /* base */
+	--foreground: #4c4f69; /* text */
+	--accent: #1e66f5; /* blue */
 	--accent-foreground: #ffffff;
-	--card: #ffffff;
-	--card-foreground: #1a1a2e;
+	--card: #e6e9ef; /* mantle */
+	--card-foreground: #4c4f69;
 	--popover: #ffffff;
-	--popover-foreground: #1a1a2e;
-	--primary: #1a1a2e;
-	--primary-foreground: #fcfcfc;
-	--secondary: #f1f5f9;
-	--secondary-foreground: #1a1a2e;
-	--muted: #f1f5f9;
-	--muted-foreground: #64748b;
-	--border: #e2e8f0;
-	--input: #e2e8f0;
-	--ring: #2563eb;
-	--code-bg: #ffffff;
-	--syntax-keyword: #d73948;
-	--syntax-function: #4b69c6;
-	--syntax-property: #8b41b1;
-	--syntax-number: #b60157;
-	--syntax-string: #198810;
-	--syntax-comment: #74747c;
-	--syntax-macro: #16718d;
-	--callout-tip-bg: #dcfce7;
-	--callout-tip-fg: #166534;
-	--callout-warning-bg: #fef3c7;
-	--callout-warning-fg: #92400e;
-	--callout-important-bg: #fee2e2;
-	--callout-important-fg: #991b1b;
-	--callout-caution-bg: #ffedd5;
-	--callout-caution-fg: #9a3412;
-	--callout-note-bg: #dbeafe;
-	--callout-note-fg: #1e40af;
+	--popover-foreground: #4c4f69;
+	--primary: #4c4f69;
+	--primary-foreground: #eff1f5;
+	--secondary: #e6e9ef; /* mantle */
+	--secondary-foreground: #4c4f69;
+	--muted: #dce0e8; /* crust */
+	--muted-foreground: #6c6f85; /* subtext0 */
+	--border: #ccd0da; /* surface0 */
+	--input: #ccd0da;
+	--ring: #1e66f5;
+	--code-bg: #e6e9ef;
+	--syntax-keyword: #d20f39; /* red */
+	--syntax-function: #1e66f5; /* blue */
+	--syntax-property: #8839ef; /* mauve */
+	--syntax-number: #fe640b; /* peach */
+	--syntax-string: #40a02b; /* green */
+	--syntax-comment: #9ca0b0; /* overlay0 */
+	--syntax-macro: #179299; /* teal */
+	--callout-tip-bg: #e6f0e6;
+	--callout-tip-fg: #40a02b;
+	--callout-warning-bg: #f5ecdb;
+	--callout-warning-fg: #df8e1d;
+	--callout-important-bg: #f5e0e6;
+	--callout-important-fg: #d20f39;
+	--callout-caution-bg: #f5e8dd;
+	--callout-caution-fg: #fe640b;
+	--callout-note-bg: #e0e8f5;
+	--callout-note-fg: #1e66f5;
+	--shadow: 0 0 0 rgba(0, 0, 0, 0);
 }
 
-/* ═══ 2. rosepine-dark（Rosé Pine）═══ */
-[data-theme="rosepine-dark"] {
-	--background: #191724;
-	--foreground: #e0def4;
-	--accent: #c4a7e7; /* iris */
-	--accent-foreground: #191724;
-	--card: #1f1d2e; /* surface */
-	--card-foreground: #e0def4;
-	--popover: #1f1d2e;
-	--popover-foreground: #e0def4;
-	--primary: #e0def4;
-	--primary-foreground: #191724;
-	--secondary: #26233a; /* overlay */
-	--secondary-foreground: #e0def4;
-	--muted: #26233a;
-	--muted-foreground: #908caa; /* subtle */
-	--border: #403d52; /* highlightMed */
-	--input: #403d52;
-	--ring: #c4a7e7;
-	--code-bg: #1f1d2e;
-	--syntax-keyword: #eb6f92; /* love */
-	--syntax-function: #9ccfd8; /* foam */
-	--syntax-property: #c4a7e7; /* iris */
-	--syntax-number: #ebbcba; /* rose */
-	--syntax-string: #f6c177; /* gold */
-	--syntax-comment: #6e6a86; /* muted */
-	--syntax-macro: #31748f; /* pine */
-	--callout-tip-bg: #21302a;
-	--callout-tip-fg: #9ccfd8;
-	--callout-warning-bg: #3a3226;
-	--callout-warning-fg: #f6c177;
-	--callout-important-bg: #3a2430;
-	--callout-important-fg: #eb6f92;
-	--callout-caution-bg: #3a2a26;
-	--callout-caution-fg: #ebbcba;
-	--callout-note-bg: #262f3a;
-	--callout-note-fg: #c4a7e7;
-}
-
-/* ═══ 3. rosepine-light（Rosé Pine Dawn）═══ */
-[data-theme="rosepine-light"] {
-	--background: #faf4ed;
-	--foreground: #575279;
-	--accent: #907aa9; /* iris */
-	--accent-foreground: #faf4ed;
-	--card: #fffaf3; /* surface */
-	--card-foreground: #575279;
-	--popover: #fffaf3;
-	--popover-foreground: #575279;
-	--primary: #575279;
-	--primary-foreground: #faf4ed;
-	--secondary: #f2e9e1; /* overlay */
-	--secondary-foreground: #575279;
-	--muted: #f2e9e1;
-	--muted-foreground: #9893a5; /* muted */
-	--border: #e3dcd4;
-	--input: #e3dcd4;
-	--ring: #907aa9;
-	--code-bg: #fffaf3;
-	--syntax-keyword: #b4637a; /* love */
-	--syntax-function: #56949f; /* foam */
-	--syntax-property: #907aa9; /* iris */
-	--syntax-number: #d7827e; /* rose */
-	--syntax-string: #ea9d34; /* gold */
-	--syntax-comment: #9893a5; /* muted */
-	--syntax-macro: #286983; /* pine */
-	--callout-tip-bg: #e7f0ea;
-	--callout-tip-fg: #286983;
-	--callout-warning-bg: #f5ecdc;
-	--callout-warning-fg: #d7827e;
-	--callout-caution-bg: #f5e6e4;
-	--callout-caution-fg: #b4637a;
-	--callout-important-bg: #f5e6ef;
-	--callout-important-fg: #b4637a;
-	--callout-note-bg: #ece6f2;
-	--callout-note-fg: #907aa9;
-}
-
-/* ═══ 4. catppuccin-dark（Mocha）═══ */
-[data-theme="catppuccin-dark"] {
+/* ═══ 2. dark — Catppuccin Mocha ═══ */
+[data-theme="dark"] {
+	color-scheme: dark;
 	--background: #1e1e2e; /* base */
 	--foreground: #cdd6f4; /* text */
 	--accent: #89b4fa; /* blue */
@@ -172,227 +100,15 @@
 	--callout-caution-fg: #fab387;
 	--callout-note-bg: #20283a;
 	--callout-note-fg: #89b4fa;
+	--shadow: 0 0 0 rgba(0, 0, 0, 0);
 }
 
-/* ═══ 5. catppuccin-light（Latte）═══ */
-[data-theme="catppuccin-light"] {
-	--background: #eff1f5; /* base */
-	--foreground: #4c4f69; /* text */
-	--accent: #1e66f5; /* blue */
-	--accent-foreground: #ffffff;
-	--card: #ffffff;
-	--card-foreground: #4c4f69;
-	--popover: #ffffff;
-	--popover-foreground: #4c4f69;
-	--primary: #4c4f69;
-	--primary-foreground: #eff1f5;
-	--secondary: #e6e9ef; /* mantle */
-	--secondary-foreground: #4c4f69;
-	--muted: #e6e9ef;
-	--muted-foreground: #6c6f85; /* subtext0 */
-	--border: #ccd0da; /* surface0 */
-	--input: #ccd0da;
-	--ring: #1e66f5;
-	--code-bg: #ffffff;
-	--syntax-keyword: #d20f39; /* red */
-	--syntax-function: #1e66f5; /* blue */
-	--syntax-property: #8839ef; /* mauve */
-	--syntax-number: #fe640b; /* peach */
-	--syntax-string: #40a02b; /* green */
-	--syntax-comment: #9ca0b0; /* overlay0 */
-	--syntax-macro: #179299; /* teal */
-	--callout-tip-bg: #e6f0e6;
-	--callout-tip-fg: #40a02b;
-	--callout-warning-bg: #f5ecdb;
-	--callout-warning-fg: #df8e1d;
-	--callout-important-bg: #f5e0e6;
-	--callout-important-fg: #d20f39;
-	--callout-caution-bg: #f5e8dd;
-	--callout-caution-fg: #fe640b;
-	--callout-note-bg: #e0e8f5;
-	--callout-note-fg: #1e66f5;
-}
-
-/* ═══ 6. kanagawa-dark（Kanagawa Dragon）═══ */
-[data-theme="kanagawa-dark"] {
-	--background: #181616; /* dragonBlack3 */
-	--foreground: #c5c9c5; /* dragonWhite */
-	--accent: #8ba4b0; /* dragonBlue2 */
-	--accent-foreground: #181616;
-	--card: #1d1c19; /* dragonBlack2 */
-	--card-foreground: #c5c9c5;
-	--popover: #1d1c19;
-	--popover-foreground: #c5c9c5;
-	--primary: #c5c9c5;
-	--primary-foreground: #181616;
-	--secondary: #282727; /* dragonBlack4 */
-	--secondary-foreground: #c5c9c5;
-	--muted: #282727;
-	--muted-foreground: #a6a69c; /* dragonGray */
-	--border: #393836; /* dragonBlack5 */
-	--input: #393836;
-	--ring: #8ba4b0;
-	--code-bg: #1d1c19;
-	--syntax-keyword: #ff7b93;
-	--syntax-function: #7eb3e0;
-	--syntax-property: #c7a0e0;
-	--syntax-number: #ff8fae;
-	--syntax-string: #9ece6a;
-	--syntax-comment: #a6a69c;
-	--syntax-macro: #7dcfff;
-	--callout-tip-bg: #2b3328; /* winterGreen */
-	--callout-tip-fg: #87a987; /* dragonGreen */
-	--callout-warning-bg: #49443c; /* winterYellow */
-	--callout-warning-fg: #c4b28a; /* dragonYellow */
-	--callout-important-bg: #43242b; /* winterRed */
-	--callout-important-fg: #c4746e; /* dragonRed */
-	--callout-caution-bg: #43392b;
-	--callout-caution-fg: #b6927b; /* dragonOrange */
-	--callout-note-bg: #223249; /* waveBlue1 */
-	--callout-note-fg: #8ba4b0; /* dragonBlue2 */
-}
-
-/* ═══ 7. kanagawa-light（Kanagawa Lotus）═══ */
-[data-theme="kanagawa-light"] {
-	--background: #f2ecbc; /* lotusWhite3 */
-	--foreground: #545464; /* lotusInk1 */
-	--accent: #4d699b; /* lotusBlue4 */
-	--accent-foreground: #ffffff;
-	--card: #e5ddb0; /* lotusWhite2 */
-	--card-foreground: #545464;
-	--popover: #e5ddb0;
-	--popover-foreground: #545464;
-	--primary: #545464;
-	--primary-foreground: #f2ecbc;
-	--secondary: #dcd5ac; /* lotusWhite1 */
-	--secondary-foreground: #545464;
-	--muted: #dcd5ac;
-	--muted-foreground: #8a8980; /* lotusGray3 */
-	--border: #d5cea3; /* lotusWhite0 */
-	--input: #d5cea3;
-	--ring: #4d699b;
-	--code-bg: #e5ddb0;
-	--syntax-keyword: #c84053; /* lotusRed */
-	--syntax-function: #4d699b; /* lotusBlue4 */
-	--syntax-property: #766b90; /* lotusViolet2 */
-	--syntax-number: #b35b79; /* lotusPink */
-	--syntax-string: #6f894e; /* lotusGreen */
-	--syntax-comment: #8a8980; /* lotusGray3 */
-	--syntax-macro: #4e8ca2; /* lotusTeal1 */
-	--callout-tip-bg: #e0e8d5;
-	--callout-tip-fg: #6f894e;
-	--callout-warning-bg: #f0e8d0;
-	--callout-warning-fg: #836f4a;
-	--callout-important-bg: #f0d8dc;
-	--callout-important-fg: #c84053;
-	--callout-caution-bg: #f0e2d0;
-	--callout-caution-fg: #cc6d00;
-	--callout-note-bg: #dce2ec;
-	--callout-note-fg: #4d699b;
-}
-
-/* ═══ 8. gruvbox-dark ═══ */
-[data-theme="gruvbox-dark"] {
-	--background: #282828; /* bg0 */
-	--foreground: #ebdbb2; /* fg1 */
-	--accent: #83a598; /* blue bright */
-	--accent-foreground: #282828;
-	--card: #3c3836; /* bg1 */
-	--card-foreground: #ebdbb2;
-	--popover: #3c3836;
-	--popover-foreground: #ebdbb2;
-	--primary: #ebdbb2;
-	--primary-foreground: #282828;
-	--secondary: #504945; /* bg2 */
-	--secondary-foreground: #ebdbb2;
-	--muted: #504945;
-	--muted-foreground: #a89984; /* fg4 */
-	--border: #665c54; /* bg3 */
-	--input: #665c54;
-	--ring: #83a598;
-	--code-bg: #3c3836;
-	--syntax-keyword: #fb4934; /* red bright */
-	--syntax-function: #83a598; /* blue bright */
-	--syntax-property: #d3869b; /* purple bright */
-	--syntax-number: #fe8019; /* orange bright */
-	--syntax-string: #b8bb26; /* green bright */
-	--syntax-comment: #928374; /* gray */
-	--syntax-macro: #8ec07c; /* aqua bright */
-	--callout-tip-bg: #323d2e;
-	--callout-tip-fg: #b8bb26;
-	--callout-warning-bg: #3d3626;
-	--callout-warning-fg: #fabd2f;
-	--callout-important-bg: #3d2626;
-	--callout-important-fg: #fb4934;
-	--callout-caution-bg: #3d2f26;
-	--callout-caution-fg: #fe8019;
-	--callout-note-bg: #26363a;
-	--callout-note-fg: #83a598;
-}
-
-/* ═══ 9. gruvbox-light ═══ */
-[data-theme="gruvbox-light"] {
-	--background: #fbf1c7; /* bg0 */
-	--foreground: #3c3836; /* fg1 */
-	--accent: #076678; /* blue */
-	--accent-foreground: #ffffff;
-	--card: #ebdbb2; /* bg1 */
-	--card-foreground: #3c3836;
-	--popover: #ebdbb2;
-	--popover-foreground: #3c3836;
-	--primary: #3c3836;
-	--primary-foreground: #fbf1c7;
-	--secondary: #d5c4a1; /* bg2 */
-	--secondary-foreground: #3c3836;
-	--muted: #d5c4a1;
-	--muted-foreground: #7c6f64; /* fg4 */
-	--border: #bdae93; /* bg3 */
-	--input: #bdae93;
-	--ring: #076678;
-	--code-bg: #ebdbb2;
-	--syntax-keyword: #9d0006; /* red */
-	--syntax-function: #076678; /* blue */
-	--syntax-property: #8f3f71; /* purple */
-	--syntax-number: #af3a03; /* orange */
-	--syntax-string: #79740e; /* green */
-	--syntax-comment: #928374; /* gray */
-	--syntax-macro: #427b58; /* aqua */
-	--callout-tip-bg: #e5e0b8;
-	--callout-tip-fg: #79740e;
-	--callout-warning-bg: #f0e0b8;
-	--callout-warning-fg: #b57614;
-	--callout-important-bg: #ecd8d0;
-	--callout-important-fg: #9d0006;
-	--callout-caution-bg: #f0dcc0;
-	--callout-caution-fg: #af3a03;
-	--callout-note-bg: #d0dce0;
-	--callout-note-fg: #076678;
-}
-/* ═══ 派生色：由当前主题的变量算出，新增主题无需再补定义 ═══
- * ① 小胶囊类元信息（文章 tag、代码块语言标签 / 复制按钮、搜索结果 tag）：
- * 把 accent 按比例混进 background / foreground / border。
- * 不能直接用 --muted-foreground 配 --muted：亮色主题下对比度只有
- * 2.37~4.34:1（Rosé Pine Dawn / Kanagawa Lotus / Gruvbox Light 几乎看不清），
- * 且 --muted 与 --background 亮度太接近，胶囊底几乎看不见（1.07~1.51）。
- * 派生后：文字对比度最差 4.57:1（AA 通过），胶囊底与描边在所有主题下清晰可见。
- *
- * ② 行内代码（正文里的 `code`）：把 foreground 混进 muted / border 做中性加深，
- * 不用 accent——行内代码不是可点元素，染成 accent 会像链接。
- * 原样是 --muted 配 --border，亮色主题下行内代码底与页面底只差 1.07~1.24，
- * 段落里几乎看不出那是代码片段；派生后底/页面 1.18~1.89、边/页面 1.66~3.22，
- * 正文对比度最差 4.62:1（仍过 AA）。深色主题同样只增不减。
- *
- * ③ 下拉面板（主题 / 语言选择器）：亮色主题下 --popover 与 --background
- * 常常几乎同色（AstroPaper / Rosé Pine / Catppuccin 差 1.01~1.11），--border
- * 又很淡，面板会糊在页面里；面板头标签用 --muted-foreground 在亮色主题下
- * 只有 2.3~3.0:1。这里把 foreground / accent 混进去，让面板在明暗主题下
- * 都清晰可辨。 */
+/* ═══ 派生色：由当前主题的变量算出 ═══ */
 :root {
-	--chip-bg: color-mix(in oklab, var(--accent) 16%, var(--background));
-	--chip-fg: color-mix(in oklab, var(--accent) 30%, var(--foreground));
-	--chip-border: color-mix(in oklab, var(--accent) 45%, var(--border));
-	--inline-code-bg: color-mix(in oklab, var(--foreground) 6%, var(--muted));
-	--inline-code-border: color-mix(in oklab, var(--foreground) 20%, var(--border));
+	--chip-bg: color-mix(in oklab, var(--accent) 14%, var(--background));
+	--chip-fg: color-mix(in oklab, var(--accent) 35%, var(--foreground));
+	--chip-border: color-mix(in oklab, var(--accent) 40%, var(--border));
+	--inline-code-bg: color-mix(in oklab, var(--foreground) 8%, var(--muted));
 	--picker-bg: color-mix(in oklab, var(--foreground) 5%, var(--popover));
 	--picker-border: color-mix(in oklab, var(--foreground) 18%, var(--border));
 	--picker-hover: color-mix(in oklab, var(--accent) 15%, var(--popover));
@@ -400,7 +116,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
- * 以下为组件与排版样式，一律引用上面的变量，不出现具体色值
+ * 组件与排版
  * ═══════════════════════════════════════════════════════════════ */
 
 /* ===== 全局重置 ===== */
@@ -416,9 +132,6 @@ html {
 	font-size: clamp(15px, 1rem + 0.25vw, 17px);
 	line-height: 1.6;
 	-webkit-font-smoothing: antialiased;
-}
-
-html {
 	scroll-behavior: smooth;
 }
 
@@ -444,11 +157,6 @@ body {
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
-	transition:
-		background 0.3s ease,
-		color 0.3s ease,
-		border-color 0.3s ease,
-		box-shadow 0.3s ease;
 }
 
 main {
@@ -456,18 +164,9 @@ main {
 }
 
 a {
-	color: var(--accent);
-	text-decoration: underline;
-	text-decoration-style: dashed;
-	text-underline-offset: 3px;
-	transition:
-		color 0.2s ease,
-		text-decoration-color 0.2s ease;
-}
-a:hover {
 	color: var(--foreground);
-	text-decoration-style: solid;
-	text-decoration-color: var(--accent);
+	text-decoration: none;
+	transition: color 0.2s ease;
 }
 
 img {
@@ -475,28 +174,33 @@ img {
 	height: auto;
 }
 
-/* ===== 通用页面标题（About, Search, Tags 等共用） ===== */
+:target {
+	scroll-margin-block: 1rem;
+}
+
+/* ===== 布局：AstroPaper 的 app-layout（max-w-3xl 居中） ===== */
+.container {
+	max-width: var(--content-width);
+	margin: 0 auto;
+	padding: 0 1rem;
+	width: 100%;
+}
+
+/* ===== 通用页面标题（About, Tags 等共用） ===== */
 .page.container {
-	/* .page 与 .container 同特异性，.container 定义在后会覆盖 .page 的 padding；
-	 * 用复合选择器提高特异性，确保页面顶部/底部有留白（否则内容顶着 sticky header） */
-	padding: 3rem 1.25rem;
+	padding: 2rem 1rem 4rem;
 }
 .page h1 {
-	font-size: var(--text-3xl);
+	font-size: clamp(1.875rem, 4vw, 2.25rem);
 	font-weight: 700;
+	line-height: 1.2;
 	margin-bottom: 1.5rem;
+	letter-spacing: -0.01em;
 }
 
-/* ===== 布局 ===== */
-.container {
-	max-width: 95ch;
-	margin: 0 auto;
-	padding: 0 1.25rem;
-}
-
-/* ===== 文章正文排版 ===== */
+/* ===== 文章正文排版（AstroPaper typography） ===== */
 .prose {
-	line-height: 1.8;
+	line-height: 1.75;
 	max-width: 100%;
 }
 .prose p {
@@ -508,15 +212,37 @@ img {
 	margin-top: 2em;
 	margin-bottom: 0.5em;
 	line-height: 1.3;
+	color: var(--foreground);
 }
 .prose h2 {
 	font-size: var(--text-2xl);
+	font-weight: 650;
 }
 .prose h3 {
 	font-size: var(--text-lg);
+	font-style: italic;
+	font-weight: 600;
 }
 .prose h4 {
 	font-size: var(--text-base);
+	font-weight: 600;
+}
+
+/* 正文链接：AstroPaper 风格——正文色 + 虚线下划线，hover 变 accent */
+.prose a {
+	color: inherit;
+	text-decoration: underline;
+	text-decoration-style: dashed;
+	text-underline-offset: 4px;
+	text-decoration-color: var(--muted-foreground);
+	overflow-wrap: break-word;
+	transition:
+		color 0.2s ease,
+		text-decoration-color 0.2s ease;
+}
+.prose a:hover {
+	color: var(--accent);
+	text-decoration-color: var(--accent);
 }
 
 .prose ul,
@@ -527,23 +253,29 @@ img {
 .prose li {
 	margin-bottom: 0.25em;
 }
+.prose li::marker {
+	color: var(--accent);
+}
 .prose hr {
 	border: none;
 	border-top: 1px solid var(--border);
-	margin: 2em 0;
+	margin: 2.5em 0;
 }
 .prose strong {
 	font-weight: 600;
+	color: var(--foreground);
+}
+.prose blockquote {
+	border-left: 3px solid color-mix(in oklab, var(--accent) 70%, transparent);
+	padding-left: 1em;
+	margin: 1.5em 0;
+	opacity: 0.85;
 }
 .prose math {
 	font-size: var(--text-base);
 }
 /* 注意：不能在这里设置 display: block。
- * Chromium 的 MathML 布局依赖 UA 样式表中 `display: block math` 这个特殊值，
- * 一旦被 author CSS 覆盖成普通 `display: block`，<math> 就会退化为普通块盒，
- * 所有子元素（mi/mo/msup/…）会变成全宽块级元素垂直堆叠（公式错位）。
- * Firefox 的 MathML 布局不依赖该值，所以只有 Chrome 出问题。
- * `display="block"` 属性本身已由浏览器 UA 样式表处理（含居中）。 */
+ * Chromium 的 MathML 布局依赖 UA 样式表中 `display: block math` 这个特殊值。 */
 .prose math[display="block"] {
 	text-align: center;
 	margin: 1.5em 0;
@@ -555,7 +287,7 @@ img {
 .prose table {
 	width: 100%;
 	border-collapse: collapse;
-	margin: 1.5em 0;
+	margin: 1.75em 0;
 	font-size: var(--text-sm);
 }
 .prose th,
@@ -568,19 +300,28 @@ img {
 	font-weight: 600;
 }
 
-/* ===== Figure（图片 + caption）：居中 + 小字号 caption ===== */
+/* 图片：细边框 + 居中（AstroPaper） */
+.prose img {
+	display: block;
+	margin-inline: auto;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+}
+
+/* ===== Figure（图片 + caption） ===== */
 .prose figure {
 	text-align: center;
 	margin: 2em 0;
 }
 .prose figcaption {
 	text-align: center;
-	font-size: var(--text-sm); /* 0.85em，约 9.35pt */
+	font-size: var(--text-sm);
 	color: var(--muted-foreground);
+	opacity: 0.85;
 	margin-top: 0.5em;
 }
 
-/* ===== View Transitions — 全局生效（不被 Astro scoped CSS 影响） ===== */
+/* ===== View Transitions ===== */
 ::view-transition-old(root) {
 	animation: 200ms ease-in both vt-old;
 	mix-blend-mode: normal;
@@ -612,22 +353,20 @@ img {
 	}
 }
 
-/* ===== 行内代码 =====
- * 颜色用 global.css 顶部的派生色（中性加深），亮色主题下才看得出是代码片段 */
+/* ===== 行内代码（AstroPaper：muted 底、圆角、无边框） ===== */
 .prose code {
 	font-size: 0.85em;
-	padding: 0.2em 0.4em;
+	padding: 0.15em 0.35em;
 	border-radius: 4px;
-	background: var(--inline-code-bg);
-	border: 1px solid var(--inline-code-border);
+	background: color-mix(in oklab, var(--muted) 75%, transparent);
+	color: var(--foreground);
 	font-family: ui-monospace, "Cascadia Code", "SF Mono", "Fira Code", monospace;
-	font-weight: 450;
 }
 
 /* ===== 代码块 ===== */
 .code-block {
 	position: relative;
-	margin: 1.5em 0;
+	margin: 1.75em 0;
 	border: 1px solid var(--border);
 	border-radius: var(--radius);
 	background: var(--code-bg);
@@ -637,7 +376,7 @@ img {
 	display: block;
 	overflow-x: auto;
 	padding: 1em;
-	padding-top: calc(1em + 8px);
+	padding-top: 1.15em;
 	background: transparent;
 	font-size: var(--text-sm);
 	line-height: 1.6;
@@ -649,7 +388,6 @@ img {
 
 /* ═══ 代码高亮：把 Typst 输出的固定内联色映射到主题变量 ═══
  * Typst 0.15 HTML 导出写死 `style="color: #xxx"`，无法随明暗主题切换。
- * 用属性选择器 + !important 覆盖为 var(--syntax-*)，色值集中在顶部变量区。
  * 映射表（Typst 默认主题 → 语义）：
  *   #d73948 关键字/操作符/类型 → --syntax-keyword
  *   #4b69c6 函数/标识符      → --syntax-function
@@ -693,7 +431,7 @@ img {
 .callout-content p:first-child { margin-top: 0; }
 .callout-content p:last-child  { margin-bottom: 0; }
 
-/* Callout 类型颜色 — 色值集中在顶部变量区（--callout-*），此处仅引用 */
+/* Callout 类型颜色 — 色值集中在顶部变量区（--callout-*） */
 .callout[data-callout="tip"] {
 	background: var(--callout-tip-bg);
 	color: var(--callout-tip-fg);

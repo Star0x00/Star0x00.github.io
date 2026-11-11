@@ -11,6 +11,8 @@ export interface Props {
   lang?: Lang;
   /** URL of this page in the other language; defaults to a prefix swap. */
   altUrl?: string;
+  /** Social card image (root-relative or absolute); defaults to the site card. */
+  ogImage?: string;
 }
 
 const {
@@ -18,11 +20,17 @@ const {
   description,
   lang = defaultLang,
   altUrl,
+  ogImage,
 } = Astro.props;
 const meta = siteMeta[lang];
 const pageTitle = title ? `${title} — ${meta.title}` : meta.title;
 const pageDesc = description || meta.description;
 const alternateUrl = altUrl ?? switchLangUrl(lang, Astro.url.pathname);
+
+// 构建期用 typst 生成的 1200×630 社交卡片；非文章页用站点默认卡片
+const defaultOg = lang === "zh" ? "/zh/og.png" : "/og.png";
+const socialImage = new URL(ogImage ?? defaultOg, site.url).href;
+const canonicalUrl = new URL(Astro.url.pathname, site.url).href;
 ---
 
 <html lang={lang}>
@@ -31,33 +39,24 @@ const alternateUrl = altUrl ?? switchLangUrl(lang, Astro.url.pathname);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href={site.favicon}>
     <meta name="color-scheme" content="dark light">
-    <meta name="theme-color" content="#fcfcfc" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#181616" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#eff1f5">
     <script is:inline>
     (function () {
-      // 主题列表需与 global.css 的 [data-theme=...] 块、ThemePicker.astro 保持一致
-      var THEMES = [
-        "astropaper-light",
-        "rosepine-light",
-        "rosepine-dark",
-        "catppuccin-light",
-        "catppuccin-dark",
-        "kanagawa-light",
-        "kanagawa-dark",
-        "gruvbox-light",
-        "gruvbox-dark",
-      ];
+      // 只有两套配色：light = Catppuccin Latte，dark = Catppuccin Mocha
       var root = document.documentElement;
       var saved = null;
       try {
         saved = localStorage.getItem("theme");
       } catch (e) {}
-      var theme = THEMES.indexOf(saved) !== -1 ? saved : null;
+      var theme = saved === "light" || saved === "dark" ? saved : null;
       if (!theme) {
-        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        theme = prefersDark ? "kanagawa-dark" : "astropaper-light";
+        theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
       }
       root.setAttribute("data-theme", theme);
+      var tc = document.querySelector('meta[name="theme-color"]');
+      if (tc) tc.setAttribute("content", theme === "dark" ? "#1e1e2e" : "#eff1f5");
       /* 抑制初始化过渡闪烁 */
       root.style.setProperty("transition", "none");
       root.getBoundingClientRect();
@@ -68,6 +67,12 @@ const alternateUrl = altUrl ?? switchLangUrl(lang, Astro.url.pathname);
     <meta property="og:title" content={pageTitle}>
     <meta property="og:description" content={pageDesc}>
     <meta property="og:type" content="website">
+    <meta property="og:url" content={canonicalUrl}>
+    <meta property="og:image" content={socialImage}>
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content={socialImage}>
     <ClientRouter />
     <title>{pageTitle}</title>
     <!-- VT 动画定义已移至 global.css（避免 Astro scoped CSS 干扰） -->
@@ -84,39 +89,22 @@ const alternateUrl = altUrl ?? switchLangUrl(lang, Astro.url.pathname);
     <script>
     document.addEventListener("astro:after-swap", function () {
       // View Transitions 会用新文档属性覆盖 <html>，data-theme 会被清掉；
-      // 导航完成后从这里从 localStorage 恢复主题（ThemePicker 的
-      // data-astro-rerun 脚本也会恢复，双保险）
-      const THEMES = [
-        "astropaper-light",
-        "rosepine-light",
-        "rosepine-dark",
-        "catppuccin-light",
-        "catppuccin-dark",
-        "kanagawa-light",
-        "kanagawa-dark",
-        "gruvbox-light",
-        "gruvbox-dark",
-      ];
-      const root = document.documentElement;
-      let saved = null;
+      // 导航完成后从 localStorage 恢复主题（ThemePicker 的
+      // data-astro-rerun 脚本也会恢复，双保险）。
+      var root = document.documentElement;
+      var saved = null;
       try {
         saved = localStorage.getItem("theme");
       } catch (e) {}
-      const theme = THEMES.indexOf(saved) !== -1 ? saved : null;
-      if (theme) {
-        root.setAttribute("data-theme", theme);
-      } else {
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        root.setAttribute("data-theme", prefersDark ? "kanagawa-dark" : "astropaper-light");
+      var theme = saved === "light" || saved === "dark" ? saved : null;
+      if (!theme) {
+        theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
       }
-      // 同步 theme-color
-      var meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) {
-        var bg = getComputedStyle(document.body).backgroundColor;
-        if (bg && bg !== "rgba(0, 0, 0, 0)") {
-          meta.setAttribute("content", bg);
-        }
-      }
+      root.setAttribute("data-theme", theme);
+      var tc = document.querySelector('meta[name="theme-color"]');
+      if (tc) tc.setAttribute("content", theme === "dark" ? "#1e1e2e" : "#eff1f5");
     });
     </script>
   </body>

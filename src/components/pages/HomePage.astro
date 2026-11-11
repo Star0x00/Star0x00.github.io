@@ -32,27 +32,61 @@ const searchIndex = langPath(lang, "/search-index.json");
   title={page > 1 ? (lang === "zh" ? `第 ${page} 页` : `Page ${page}`) : undefined}
   altUrl={altUrl}
 >
-  <div class="hero">
-    <h1>{siteMeta[lang].title}</h1>
-    <p class="tagline">{t.tagline}</p>
+  <div class="container home">
+    <section class="hero">
+      <h1>
+        {siteMeta[lang].title}
+        <a
+          class="rss"
+          href={langPath(lang, "/rss.xml")}
+          aria-label="RSS Feed"
+          title="RSS Feed"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" />
+            <circle cx="5" cy="19" r="1" />
+          </svg>
+        </a>
+      </h1>
+      <p class="tagline">{t.tagline}</p>
+    </section>
+
+    <div class="search-inline">
+      <input type="search" id="search-input" placeholder={t.searchPlaceholder} />
+      <div id="search-results" class="search-results"></div>
+    </div>
+
+    <section class="posts">
+      <h2 class="section-title">{t.recentPosts}</h2>
+      <PostList posts={posts} lang={lang} />
+
+      {totalPages > 1 && (
+        <nav class="pagination">
+          {page > 1 ? (
+            <a href={prevPage} class="page-link">{t.previous}</a>
+          ) : (
+            <span class="page-link disabled">{t.previous}</span>
+          )}
+          <span class="page-info">{page} / {totalPages}</span>
+          {nextPage ? (
+            <a href={nextPage} class="page-link">{t.next}</a>
+          ) : (
+            <span class="page-link disabled">{t.next}</span>
+          )}
+        </nav>
+      )}
+    </section>
   </div>
-
-  <div class="search-inline container">
-    <input type="search" id="search-input" placeholder={t.searchPlaceholder} />
-    <div id="search-results" class="search-results"></div>
-  </div>
-
-  <section class="posts container">
-    <PostList posts={posts} lang={lang} />
-
-    {totalPages > 1 && (
-      <nav class="pagination">
-        {page > 1 && <a href={prevPage} class="page-link prev">{t.previous}</a>}
-        <span class="page-info">{page} / {totalPages}</span>
-        {nextPage && <a href={nextPage} class="page-link next">{t.next}</a>}
-      </nav>
-    )}
-  </section>
 </BaseLayout>
 
 <script type="application/json" id="search-i18n" set:html={JSON.stringify({
@@ -110,41 +144,60 @@ const searchIndex = langPath(lang, "/search-index.json");
 </script>
 
 <style>
-  .hero {
-    text-align: center;
-    padding: 4rem 0 2rem;
-  }
-  .hero h1 {
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 700;
-  }
-  .tagline {
-    margin-top: 0.5rem;
-    color: var(--muted-foreground);
+  .home {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 
-  /* 内联搜索 */
+  /* Hero：AstroPaper 的大标题 + 底部细线 */
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 0 1.5rem;
+  }
+  .hero h1 {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0.5rem 0 1rem;
+  }
+  .rss {
+    color: var(--accent);
+    display: inline-flex;
+    transition: opacity 0.2s ease;
+  }
+  .rss:hover {
+    opacity: 0.7;
+  }
+  .tagline {
+    color: var(--muted-foreground);
+    font-size: var(--text-lg);
+  }
+
+  /* 搜索 */
   .search-inline {
-    margin-bottom: 2rem;
+    padding: 1.5rem 0 0;
   }
   #search-input {
     width: 100%;
-    padding: 0.6em 1em;
+    padding: 0.55em 0.9em;
     font-size: var(--text-sm);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    background: var(--background);
+    background: var(--card);
     color: var(--foreground);
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  #search-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--border);
-  }
   #search-input::placeholder {
     color: var(--muted-foreground);
-    opacity: 0.7;
+  }
+  #search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 25%, transparent);
   }
   .search-results {
     margin-top: 0.75rem;
@@ -158,19 +211,21 @@ const searchIndex = langPath(lang, "/search-index.json");
   }
   .result-item h3 {
     font-size: var(--text-base);
-    font-weight: 600;
+    font-weight: 500;
   }
   .result-item h3 a {
-    color: var(--foreground);
+    color: var(--accent);
     text-decoration: none;
-    transition: color 0.2s ease;
   }
   .result-item h3 a:hover {
-    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-style: dashed;
+    text-underline-offset: 4px;
   }
   .result-item .meta {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: 0.15rem;
     font-size: var(--text-xs);
@@ -186,8 +241,9 @@ const searchIndex = langPath(lang, "/search-index.json");
   }
   .result-item p {
     margin-top: 0.25rem;
-    font-size: var(--text-xs);
-    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+    color: var(--foreground);
+    opacity: 0.85;
   }
   .search-results .empty {
     font-size: var(--text-sm);
@@ -195,34 +251,43 @@ const searchIndex = langPath(lang, "/search-index.json");
     padding: 0.5rem 0;
   }
 
+  /* 文章列表 */
   .posts {
-    padding-bottom: 3rem;
+    padding: 2.5rem 0 3rem;
   }
+  .section-title {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5rem;
+  }
+
   .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1.5rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    transition: border-color 0.3s ease;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    font-size: var(--text-sm);
   }
   .page-link {
-    color: var(--foreground);
+    color: var(--accent);
     text-decoration: none;
-    font-size: var(--text-sm);
-    transition: color 0.2s ease, gap 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.2s ease, background 0.2s ease;
   }
   .page-link:hover {
+    border-color: var(--accent);
+    background: var(--chip-bg);
+  }
+  .page-link.disabled {
     color: var(--muted-foreground);
-    gap: 0.5rem;
+    opacity: 0.5;
+    pointer-events: none;
   }
   .page-info {
     color: var(--muted-foreground);
-    font-size: var(--text-sm);
   }
 </style>

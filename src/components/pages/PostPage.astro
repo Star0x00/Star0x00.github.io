@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { langPath, ui, type Lang } from "../../config";
+import { ogImageUrl } from "../../utils/og";
 
 export interface Props {
   lang: Lang;
@@ -23,9 +24,10 @@ const t = ui[lang];
 const locale = lang === "zh" ? "zh-CN" : "en-US";
 const copyLabel = lang === "zh" ? "复制" : "Copy";
 const copiedLabel = lang === "zh" ? "已复制" : "Copied";
+const ogImage = ogImageUrl(langPath(lang, `/blog/${post.data.slug}/og.png`), title);
 ---
 
-<BaseLayout lang={lang} title={title} description={description} altUrl={altUrl}>
+<BaseLayout lang={lang} title={title} description={description} altUrl={altUrl} ogImage={ogImage}>
   <article class="article">
     <aside class="toc" aria-labelledby="toc-title">
       <p class="toc-title" id="toc-title">{t.outline}</p>
@@ -36,21 +38,24 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
 
     <header class="article-header">
       <h1 class="article-title">{title}</h1>
-      <time class="article-date" datetime={date.toISOString()}>
-        {date.toLocaleDateString(locale, {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })}
-      </time>
+      <div class="article-meta">
+        <time class="article-date" datetime={date.toISOString()}>
+          {date.toLocaleDateString(locale, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+        </time>
+        {tags && tags.length > 0 && (
+          <div class="article-tags">
+            {tags.map((tag) => (
+              <a href={langPath(lang, `/tags/${encodeURIComponent(tag)}`)} class="tag">{tag}</a>
+            ))}
+          </div>
+        )}
+      </div>
       {description && <p class="article-desc">{description}</p>}
-      {tags && tags.length > 0 && (
-        <div class="article-tags">
-          {tags.map((tag) => (
-            <a href={langPath(lang, `/tags/${encodeURIComponent(tag)}`)} class="tag">{tag}</a>
-          ))}
-        </div>
-      )}
+      <hr class="article-divider" />
     </header>
 
     <div class="article-body prose">
@@ -70,6 +75,10 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
   if (window.__tocScroll) {
     window.removeEventListener("scroll", window.__tocScroll);
     window.__tocScroll = null;
+  }
+  if (window.__tocResize) {
+    window.removeEventListener("resize", window.__tocResize);
+    window.__tocResize = null;
   }
 
   const body = document.querySelector(".article-body");
@@ -206,10 +215,23 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
       return id;
     };
 
+    var lastActive = null;
     var setActive = function (active) {
+      if (active === lastActive) return;
+      lastActive = active;
       tocLinks.forEach(function (l) {
         l.a.classList.toggle("active", l.a === active);
       });
+      // 只在当前项跑出目录可视区时才滚动，且用瞬时滚动：
+      // 每换一项都平滑滚动会和页面滚动互相抢帧，看起来就是“卡”。
+      if (active && tocEl.scrollHeight > tocEl.clientHeight + 4) {
+        var item = active.getBoundingClientRect();
+        var box = tocEl.getBoundingClientRect();
+        if (item.top < box.top || item.bottom > box.bottom) {
+          var top = active.offsetTop - tocEl.clientHeight / 2 + active.offsetHeight / 2;
+          tocEl.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+        }
+      }
     };
 
     Array.prototype.forEach.call(headings, function (h) {
@@ -233,7 +255,8 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
       tocLinks.push({ a: a, h: h });
     });
 
-    var onScroll = function () {
+    var lastY = -1;
+    var measure = function () {
       var threshold = 120;
       var current = tocLinks[0].a;
       for (var i = 0; i < tocLinks.length; i++) {
@@ -246,9 +269,25 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
       setActive(current);
     };
 
+    // 每帧最多做一次测量（rAF 合并），避免滚动时逐事件触发布局读取
+    var ticking = false;
+    var onScroll = function () {
+      var y = window.scrollY || window.pageYOffset;
+      if (y === lastY) return;
+      lastY = y;
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        ticking = false;
+        measure();
+      });
+    };
+
     window.__tocScroll = onScroll;
+    window.__tocResize = onScroll;
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    window.addEventListener("resize", onScroll, { passive: true });
+    measure();
   } else if (tocEl) {
     tocEl.remove();
   }
@@ -257,42 +296,54 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
 
 <style>
 .article {
-  max-width: 95ch;
+  max-width: var(--content-width);
   margin: 0 auto;
-  padding: 2rem 1.25rem 4rem;
+  padding: 2rem 1rem 4rem;
 }
 .article-header {
   max-width: 65ch;
-  margin: 0 auto 3rem;
+  margin: 0 auto 2.5rem;
 }
 .article-title {
-  font-size: clamp(1.5rem, 4vw, 2.25rem);
-  font-weight: 750;
-  line-height: 1.2;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.25;
   letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+}
+.article-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
 }
 .article-date {
-  font-size: 0.875em;
+  font-size: 1em;
   color: var(--muted-foreground);
-  transition: color 0.3s ease;
 }
 .article-desc {
   margin-top: 0.75rem;
-  color: var(--muted-foreground);
-  font-size: var(--text-sm);
-  transition: color 0.3s ease;
+  color: var(--foreground);
+  font-size: var(--text-base);
+  opacity: 0.85;
+}
+.article-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.75rem 0 0;
 }
 .article-tags {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
-  margin-top: 0.75rem;
 }
 .article-tags .tag {
   color: var(--chip-fg);
   text-decoration: none;
-  font-size: 0.8em;
-  padding: 0.15em 0.55em;
+  font-size: 0.82em;
+  padding: 0.1em 0.5em;
   border-radius: 999px;
   background: var(--chip-bg);
   border: 1px solid var(--chip-border);
@@ -318,49 +369,58 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
 .toc {
   display: none;
   font-size: 0.82rem;
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--muted-foreground);
 }
 .toc-title {
   font-size: 0.7rem;
-  font-weight: 650;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--picker-head);
-  margin: 0 0 0.65rem;
+  color: var(--muted-foreground);
+  opacity: 0.75;
+  margin: 0 0 0.7rem 0.4rem;
 }
 .toc-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-left: 1px solid var(--border);
 }
-.toc-link {
+/* 目录条目由脚本动态生成，没有 Astro 作用域的 data-astro-cid 属性，
+ * 所以这些选择器必须用 :global，否则样式与 .active 状态全部失效。 */
+.toc :global(.toc-list li + li) {
+  margin-top: 1px;
+}
+.toc :global(.toc-link) {
   display: block;
-  padding: 0.22em 0.5em 0.22em 0.8em;
-  margin-left: -1px;
+  padding: 0.32em 0.6em 0.32em 0.7em;
   color: var(--muted-foreground);
   text-decoration: none;
   border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
   transition:
     color 0.15s ease,
+    background 0.15s ease,
     border-color 0.15s ease;
 }
-.toc-link:hover {
+.toc :global(.toc-link:hover) {
   color: var(--foreground);
+  background: color-mix(in oklab, var(--muted) 55%, transparent);
   text-decoration: none;
 }
-.toc-link.active {
+.toc :global(.toc-link.active) {
   color: var(--accent);
+  font-weight: 500;
   border-left-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
 }
-.toc-link.depth-3 {
-  padding-left: 1.6em;
+.toc :global(.toc-link.depth-3) {
+  padding-left: 1.5em;
   font-size: 0.95em;
 }
-.toc-link.depth-4 {
-  padding-left: 2.4em;
-  font-size: 0.9em;
+.toc :global(.toc-link.depth-4) {
+  padding-left: 2.3em;
+  font-size: 0.92em;
 }
 /* 标题滚到 sticky header 下方时留出间距 */
 .article-body :global(h2),
@@ -374,7 +434,7 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
   .article {
     max-width: none;
     display: grid;
-    grid-template-columns: 16rem minmax(0, 65ch) 16rem;
+    grid-template-columns: 14rem minmax(0, 65ch) 14rem;
     column-gap: 2rem;
     justify-content: center;
     align-items: start;
@@ -386,7 +446,7 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
     margin: 0;
   }
   .article-header {
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
   }
   .toc {
     display: block;
@@ -460,7 +520,7 @@ const copiedLabel = lang === "zh" ? "已复制" : "Copied";
 .article-body :global(.code-lang),
 .article-body :global(.code-copy) {
   position: absolute;
-  top: -0.7em;
+  top: -0.75em;
   padding: 0.1em 0.5em;
   font-size: 0.82em;
   font-weight: 650;

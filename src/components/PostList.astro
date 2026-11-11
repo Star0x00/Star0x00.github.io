@@ -21,87 +21,101 @@ const locale = lang === "zh" ? "zh-CN" : "en-US";
 ---
 
 {posts.length > 0 ? (
-  posts.map((post) => (
-    <article class="post-item">
-      <h2>
-        <a href={langPath(lang, `/blog/${post.data.slug}`)}>{post.data.title}</a>
-      </h2>
-      <div class="post-meta">
-        <time datetime={post.data.date.toISOString()}>
-          {post.data.date.toLocaleDateString(locale, {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </time>
-        {post.data.tags && post.data.tags.length > 0 && (
-          <span class="post-tags">
-            {post.data.tags.map((tag) => (
-              <a href={langPath(lang, `/tags/${encodeURIComponent(tag)}`)} class="tag">{tag}</a>
-            ))}
-          </span>
-        )}
-      </div>
-      {post.data.description && <p class="post-desc">{post.data.description}</p>}
-    </article>
-  ))
+  <ul class="post-list">
+    {posts.map((post) => (
+      <li class="post-item">
+        <a class="post-title" href={langPath(lang, `/blog/${post.data.slug}`)}>
+          {post.data.title}
+        </a>
+        <div class="post-meta">
+          <svg
+            class="meta-icon"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <path d="M16 2v4M8 2v4M3 10h18" />
+          </svg>
+          <time datetime={post.data.date.toISOString()}>
+            {post.data.date.toLocaleDateString(locale, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            })}
+          </time>
+          {post.data.tags && post.data.tags.length > 0 && (
+            <span class="post-tags">
+              {post.data.tags.map((tag) => (
+                <a href={langPath(lang, `/tags/${encodeURIComponent(tag)}`)} class="tag">{tag}</a>
+              ))}
+            </span>
+          )}
+        </div>
+        {post.data.description && <p class="post-desc">{post.data.description}</p>}
+      </li>
+    ))}
+  </ul>
 ) : (
   <p class="empty">{t.noPosts}</p>
 )}
 
 <style>
+.post-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/* AstroPaper 的 Card：标题 accent 色 + hover 虚线下划线，日期小字，摘要正文色 */
 .post-item {
-  padding: 1.5rem 0;
-  border-bottom: 1px solid var(--border);
-  transition:
-    border-color 0.3s ease,
-    padding-left 0.3s ease;
+  margin: 1.5rem 0;
 }
-.post-item:first-child {
-  padding-top: 0;
-}
-.post-item:last-child {
-  border-bottom: none;
-}
-.post-item:hover {
-  padding-left: 0.75rem;
-  border-bottom-color: var(--foreground);
-}
-.post-item:last-child:hover {
-  border-bottom-color: transparent;
-}
-.post-item h2 {
+.post-title {
+  display: inline-block;
   font-size: var(--text-xl);
-  font-weight: 600;
-  line-height: 1.3;
-}
-.post-item h2 a {
-  color: var(--foreground);
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--accent);
   text-decoration: none;
+  text-underline-offset: 4px;
   transition: color 0.2s ease;
 }
-.post-item h2 a:hover {
-  color: var(--muted-foreground);
+.post-title:hover {
+  text-decoration: underline;
+  text-decoration-style: dashed;
 }
 .post-meta {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-top: 0.3rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
   font-size: var(--text-sm);
   color: var(--muted-foreground);
 }
-.post-tags {
-  display: flex;
-  gap: 0.4rem;
+.meta-icon {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+  opacity: 0.8;
 }
-/* 颜色来自 global.css 的派生变量 --chip-*，由当前主题的 accent 混出，
- * 保证亮色主题下也够对比度（详见 global.css 的“派生色”注释） */
+.post-tags {
+  display: inline-flex;
+  gap: 0.35rem;
+  margin-left: 0.25rem;
+}
+/* 颜色来自 global.css 的派生变量 --chip-* */
 .tag {
   color: var(--chip-fg);
   text-decoration: none;
-  font-size: 0.8em;
-  padding: 0.15em 0.55em;
+  font-size: 0.82em;
+  padding: 0.1em 0.5em;
   border-radius: 999px;
   background: var(--chip-bg);
   border: 1px solid var(--chip-border);
@@ -114,17 +128,13 @@ const locale = lang === "zh" ? "zh-CN" : "en-US";
   color: var(--accent-foreground);
   background: var(--accent);
   border-color: var(--accent);
-  text-decoration: none;
 }
 .post-desc {
-  margin-top: 0.5rem;
-  color: var(--muted-foreground);
-  font-size: var(--text-sm);
-  line-height: 1.5;
-  transition: color 0.3s ease;
-}
-.post-item:hover .post-desc {
+  margin-top: 0.35rem;
   color: var(--foreground);
+  font-size: var(--text-sm);
+  line-height: 1.65;
+  opacity: 0.85;
 }
 .empty {
   text-align: center;

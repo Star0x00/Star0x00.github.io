@@ -37,6 +37,7 @@ export const ui = {
 	en: {
 		nav: { home: "Home", tags: "Tags", about: "About" },
 		footer: "© 2026 Blog. Built with Astro & Typst.",
+		recentPosts: "Recent posts",
 		tagline: "Words first. Nothing else.",
 		searchPlaceholder: "Search posts…",
 		noResults: "No results.",
@@ -57,6 +58,7 @@ export const ui = {
 	zh: {
 		nav: { home: "首页", tags: "标签", about: "关于" },
 		footer: "© 2026 博客。由 Astro 与 Typst 驱动。",
+		recentPosts: "最新文章",
 		tagline: "文字优先，仅此而已。",
 		searchPlaceholder: "搜索文章…",
 		noResults: "没有结果。",
