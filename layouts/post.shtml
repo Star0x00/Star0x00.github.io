@@ -1,0 +1,47 @@
+<extend template="base.shtml">
+<head id="head">
+	<style>
+		#prev-next {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			margin-top: 40px;
+		}
+		
+		figure {
+			align-self: center;
+			text-align: center;
+			font-style: italic;
+		}
+		
+		.post {
+			display:flex;
+			flex-direction: column;
+		}
+	</style>
+</head>
+<body id="body">
+	<h1 :text="$page.title"></h1>
+	<div class="post" :html="$page.content()"></div>
+	<ctx :if="$page.footnotes?()">
+		<section class="footnotes">
+			<hr>
+			<ol :loop="$if">
+				<li id="$loop.it.def_id" :html="$loop.it.html()"></li>
+			</ol>
+		</section>
+	</ctx>
+	<div id="prev-next">		<div :if="$page.prevPage?()">
+			<a href="$if.link()">
+				←
+				<span :text="$if.title"></span>
+			</a>
+		</div>
+		<div :if="$page.nextPage?()">
+			<a href="$if.link()">
+				<span :text="$if.title"></span>
+				→
+			</a>
+		</div>
+	</div>
+</body>

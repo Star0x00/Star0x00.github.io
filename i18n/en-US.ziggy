@@ -1,0 +1,15 @@
+// i18n/en-US.ziggy
+{
+    "home": "Home",
+    "about": "About",
+    "blog": "Blog",
+    "notes": "Notes",
+    "post-list": "Post list",
+    "recent-posts": "Recent posts",
+    "past-years": "Past years",
+    "under-construction": "SITE UNDER CONSTRUCTION",
+    "rss-blog-suffix": " - Blog",
+    "rss-notes-suffix": " - Notes",
+    "date-format": "January 02, 2006",
+    "year-format": "Year 2006",
+}

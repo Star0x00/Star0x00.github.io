@@ -1,0 +1,15 @@
+// i18n/zh-CN.ziggy
+{
+    "home": "首页",
+    "about": "关于",
+    "blog": "博客",
+    "notes": "随手记",
+    "post-list": "文章列表",
+    "recent-posts": "最近文章",
+    "past-years": "往期年份",
+    "under-construction": "站点建设中",
+    "rss-blog-suffix": " - 博客",
+    "rss-notes-suffix": " - 随手记",
+    "date-format": "2006年01月02日",
+    "year-format": "2006年",
+}

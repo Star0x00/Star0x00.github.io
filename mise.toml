@@ -1,0 +1,4 @@
+[tools]
+"github:kristoff-it/superhtml" = "latest"
+"github:kristoff-it/ziggy" = "latest"
+"github:kristoff-it/zine" = "0.14.1"

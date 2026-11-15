@@ -1,0 +1,14 @@
+---
+.title = "关于",
+.date = .date("2026-01-01T00:00:00"),
+.layout = "page.shtml",
+---
+
+我是 qwerhyy，主要写 C、Zig、Gleam，对容器和操作系统比较感兴趣。
+
+- GitHub: [@Star0x00](https://github.com/Star0x00)
+- 博客订阅: [RSS]($link.page('blog').alternative('rss'))
+- 随手记订阅: [RSS]($link.page('notes').alternative('rss'))
+
+本站由 [Zine](https://zine-ssg.io) 生成：内容用 SuperMD，布局用 SuperHTML，
+代码高亮是 tree-sitter 静态生成、配 Catppuccin Mocha 主题。

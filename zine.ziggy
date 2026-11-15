@@ -1,0 +1,26 @@
+.zine_version = "0.14.1",
+.site = .multilingual(.{
+    .host_url = "https://blog.qwerhyy.cyou",
+    .i18n_dir_path = "i18n",
+    .layouts_dir_path = "layouts",
+    .assets_dir_path = "assets",
+    .static_assets = [
+        "Temml.woff2",
+    ],
+    .locales = [
+        .{
+            .code = "en-US",
+            .name = "English (original)",
+            .site_title = "Welcome to my blog!",
+            .content_dir_path = "content/en-US",
+            .output_prefix_override = "",
+        },
+        .{
+            .code = "zh-CN",
+            .name = "中文",
+            .site_title = "欢迎来到我的博客!",
+            .content_dir_path = "content/zh-CN",
+        },
+    ],
+}),
+

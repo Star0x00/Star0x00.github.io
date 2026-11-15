@@ -1,0 +1,11 @@
+---
+.title = "Home",
+.date = .date("2026-11-14T22:51:00"),
+.layout = "index.shtml",
+---
+
+Hi, I'm qwerhyy, welcome to my blog.
+
+I mostly write C, Zig and Gleam, and I'm interested in containers and operating systems.
+
+My daily driver is a [system]($link.url("https://github.com/Star0x00/fedora-niri-atomic")) built on top of [fedora-silverblue]($link.url("https://fedoraproject.org/atomic-desktops/silverblue/")).

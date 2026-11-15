@@ -1,0 +1,14 @@
+---
+.title = "随手记归档",
+.date = .date("2026-01-01T00:00:00"),
+.layout = "devlog-archive.shtml",
+.alternatives = [.{
+    .name = "rss",
+    .layout = "devlog.xml",
+    .output = "index.xml",
+}],
+---
+
+一些短笔记、临时代码片段和不成形的想法。一年一页，新的在前。
+
+本页的 [RSS 源]($link.alternative('rss')) 始终是最新年份的条目。

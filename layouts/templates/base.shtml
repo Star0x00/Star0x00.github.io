@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="$site.localeCode()">
+	<head id="head">
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1">
+		<title :text="$site.title"></title>
+		<link type="text/css" rel="stylesheet" href="$site.asset('style.css').link()">
+		<link type="text/css" rel="stylesheet" href="$site.asset('highlight.css').link()">
+		<!-- mathtex -->
+		<link type="text/css" rel="stylesheet" href="$site.asset('Temml-Local.css').link()">
+		<script defer src="$site.asset('temml.min.js').link()"></script>
+		<script defer src="$site.asset('render-mathtex.js').link()"></script>
+		<!-- /mathtex -->
+		<super>
+	</head>
+	<body id="body">
+		<h1 class="site-title" :text="$site.title"></h1>
+		<nav>
+			<a href="$site.page('').link()" :text="$i18n.get('home')"></a>
+			&nbsp; • &nbsp;
+			<a href="$site.page('about').link()" :text="$i18n.get('about')"></a>
+			&nbsp; • &nbsp;
+			<a href="$site.page('blog').link()" :text="$i18n.get('blog')"></a>
+			<ctx :if="$site.page('notes').subpages().first?()">
+				&nbsp; • &nbsp;
+				<a href="$if.link()" :text="$i18n.get('notes')"></a>
+			</ctx>
+			&nbsp; • &nbsp;
+			<span class="lang-switch">
+				<ctx :if="$site.localeCode().eql('en-US')">
+					<ctx :if="$page.locale?('zh-CN')">
+						<a href="$if.link()">中文</a>
+					</ctx>
+				</ctx>
+				<ctx :if="$site.localeCode().eql('zh-CN')">
+					<ctx :if="$page.locale?('en-US')">
+						<a href="$if.link()">English</a>
+					</ctx>
+				</ctx>
+			</span>
+		</nav>
+		<super>
+		<footer>
+			<hr>
+			<h5 :text="$i18n.get('under-construction')"></h5>
+			<img src="$site.asset('under-construction.gif').link()" width=90>
+		</footer>
+	</body>
+</html>

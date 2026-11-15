@@ -1,0 +1,21 @@
+---
+.title = "随手记 2026",
+.date = .date("2026-01-01T00:00:00"),
+.layout = "devlog.shtml",
+---
+
+[]($section.id('about'))
+# 关于随手记
+
+写不进博客的东西：命令行片段、配置片段、链接和一些零散想法。
+
+可以[订阅 RSS]($link.page('notes').alternative('rss'))，或者翻一翻
+[过去的条目]($link.page("notes"))。
+
+## [随手记开张]($section.id("2026-11-15T12:00:00"))
+每条都是一个 `##` 标题，标题写成带 `$section.id("YYYY-MM-DDTHH:MM:SS")` 的链接。
+这个 id 同时提供条目锚点、日期，以及 RSS 里的 `pubDate`。
+
+```console
+$ nix shell nixpkgs#ripgrep
+```

@@ -1,0 +1,11 @@
+---
+.title = "首页",
+.date = .date("2026-11-14T22:51:00"),
+.layout = "index.shtml",
+---
+
+你好，我是qwerhyy，欢迎来到我的博客。
+
+我比较喜欢c，zig，gleam语言，对容器，操作系统比较感兴趣。
+
+我所使用的基于[fedora-silverblue]($link.url("https://fedoraproject.org/atomic-desktops/silverblue/"))定制的[系统]($link.url("https://github.com/Star0x00/fedora-niri-atomic"))。

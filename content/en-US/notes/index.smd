@@ -1,0 +1,14 @@
+---
+.title = "Notes Archive",
+.date = .date("2026-01-01T00:00:00"),
+.layout = "devlog-archive.shtml",
+.alternatives = [.{
+    .name = "rss",
+    .layout = "devlog.xml",
+    .output = "index.xml",
+}],
+---
+
+Short notes, snippets and half-formed ideas. One page per year, newest entries first.
+
+The [RSS feed]($link.alternative('rss')) of this page always carries the entries oindexf the newest year.

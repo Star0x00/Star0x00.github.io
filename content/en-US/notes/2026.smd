@@ -1,0 +1,23 @@
+---
+.title = "Notes 2026",
+.date = .date("2026-01-01T00:00:00"),
+.layout = "devlog.shtml",
+---
+
+[]($section.id('about'))
+# About these notes
+
+Things too small for a blog post: shell snippets, config fragments, links and
+random thoughts.
+
+You can [subscribe via RSS]($link.page('notes').alternative('rss')), or browse the
+[notes archive]($link.page("notes")) for previous years.
+
+## [Notes are live]($section.id("2026-11-15T12:00:00"))
+Each entry is a `##` heading whose title is a link carrying
+`$section.id("YYYY-MM-DDTHH:MM:SS")`. That id gives the entry its own anchor,
+its date, and its `pubDate` in the RSS feed.
+
+```console
+$ nix shell nixpkgs#ripgrep
+```

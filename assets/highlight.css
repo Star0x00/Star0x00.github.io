@@ -1,0 +1,162 @@
+/* Catppuccin Mocha — https://catppuccin.com/palette
+ * hexes from https://raw.githubusercontent.com/catppuccin/palette/main/palette.json */
+:root {
+  --rosewater: #f5e0dc;
+  --flamingo: #f2cdcd;
+  --pink: #f5c2e7;
+  --mauve: #cba6f7;
+  --red: #f38ba8;
+  --maroon: #eba0ac;
+  --peach: #fab387;
+  --yellow: #f9e2af;
+  --green: #a6e3a1;
+  --teal: #94e2d5;
+  --sky: #89dceb;
+  --sapphire: #74c7ec;
+  --blue: #89b4fa;
+  --lavender: #b4befe;
+  --text: #cdd6f4;
+  --subtext1: #bac2de;
+  --subtext0: #a6adc8;
+  --overlay2: #9399b2;
+  --overlay1: #7f849c;
+  --overlay0: #6c7086;
+  --surface2: #585b70;
+  --surface1: #45475a;
+  --surface0: #313244;
+  --base: #1e1e2e;
+  --mantle: #181825;
+  --crust: #11111b;
+  /* neutral code block background, sampled from the intended look */
+  --code-bg: #1e1e1e;
+}
+
+pre {
+  background-color: var(--code-bg);
+  border-radius: 6px;
+  padding: 12px 14px;
+  overflow-x: auto;
+}
+
+pre code {
+  color: var(--text);
+  background-color: transparent;
+  padding: 0;
+}
+
+/* inline code (`like this`) — no matching rule exists for pre > code */
+code {
+  background-color: var(--code-bg);
+  color: var(--text);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+/*
+ * Zine highlights code blocks with tree-sitter and emits one span per capture,
+ * with the capture name as the class name ('.' replaced by '_'). A span also
+ * carries the classes of its parent captures, e.g. `variable.builtin` becomes
+ * `class="variable_builtin variable"`, but not all grammars use hierarchical
+ * capture names (zig emits a bare `keyword_modifier`).
+ *
+ * These selectors are language independent: any grammar that uses the same
+ * capture names is styled automatically. Only add a `code.<language>` override
+ * for a language specific exception.
+ *
+ * `.spell` marks spell-checkable text and carries no visual meaning.
+ */
+
+code .comment,
+code .comment_documentation,
+code .comment_block,
+code .comment_block_documentation,
+code .comment_line,
+code .comment_line_documentation {
+  color: var(--overlay0);
+  font-style: italic;
+}
+
+code .keyword,
+code .keyword_modifier,
+code .keyword_type,
+code .keyword_function,
+code .keyword_operator,
+code .keyword_return,
+code .keyword_conditional,
+code .keyword_repeat,
+code .keyword_exception,
+code .keyword_storage,
+code .keyword_import,
+code .keyword_storage_type {
+  color: var(--mauve);
+}
+
+code .type,
+code .type_builtin {
+  color: var(--yellow);
+}
+
+code .constant,
+code .constant_builtin,
+code .constant_macro,
+code .string_special_path,
+code .embedded {
+  color: var(--teal);
+}
+
+/* after the generic .constant rule so numeric constants win */
+code .number,
+code .constant_numeric,
+code .constant_character {
+  color: var(--peach);
+}
+
+code .string,
+code .string_escape,
+code .character {
+  color: var(--green);
+}
+
+code .variable_builtin,
+code .constant_builtin_boolean {
+  color: var(--red);
+}
+
+code .variable,
+code .variable_parameter {
+  color: var(--text);
+}
+
+code .variable_member,
+code .field,
+code .property,
+code .function,
+code .function_method,
+code .function_macro,
+code .function_builtin,
+code .label,
+code .tag {
+  color: var(--blue);
+}
+
+code .operator {
+  color: var(--sky);
+}
+
+code .punctuation,
+code .punctuation_bracket,
+code .punctuation_delimiter,
+code .punctuation_special {
+  color: var(--overlay2);
+}
+
+code .error {
+  color: var(--red);
+  text-decoration: underline wavy var(--red);
+}
+
+/* The `console` meta-language is not tree-sitter based: it only emits a
+ * `prompt` span and a `command` span. */
+code.console .prompt { color: var(--green); }
+
+code.console .command { color: var(--subtext1); }
